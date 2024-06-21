@@ -91,9 +91,13 @@ if 'city' not in st.session_state:
     st.session_state['city'] = ""
 if 'country' not in st.session_state:
     st.session_state['country'] = ""
+
+
 country_list, cities = get_city_name()
 
 col1, col2 = st.columns([5, 1])
+
+
 with col1:
     st.title("Step 1: choose your location")
 with col2:
@@ -102,11 +106,13 @@ with col2:
         location_data = get_location(ip)
         city = location_data.get('city', 'Unknown City')
         country = location_data.get('country', 'Unknown Country')
-        st.session_state['city'] = city
-        st.session_state['country'] = country
+        st.session_state['city'] = city.strip()
+        st.session_state['country'] = country.strip()
+
 country_index = 0
 city_index = 0
 country_full_name = ""
+
 if st.session_state['country'] and st.session_state['city']:
     try:
         country_data = get_country_fullname()
@@ -132,10 +138,13 @@ else:
 
 latitude, longitude = get_lat_lon(selected_city + ", " + selected_country)
 
+
 st.write(f"""
         You selected: {selected_city} in {selected_country}
         \nLongitude: {longitude}, Latitude: {latitude}
         """)
 # with col2:
 if st.button("Next"):
+    st.session_state['city'] = selected_city.strip()
+    st.session_state['country'] = selected_country.strip()
     st.switch_page("pages/step2.py")

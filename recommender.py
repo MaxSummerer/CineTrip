@@ -8,7 +8,7 @@ class MovieRecommender:
         self.movie_mapper = movie_mapper
         self.movie_inv_mapper = movie_inv_mapper
 
-    def find_similar_movies(movie_ids, movie_titles, X, movie_mapper, movie_inv_mapper, k, metric='cosine'):
+    def find_similar_movies(self, movie_ids, movie_titles, X, movie_mapper, movie_inv_mapper, k, metric='cosine'):
         """
         Finds k-nearest neighbours for a given list of movie ids.
 
@@ -20,6 +20,7 @@ class MovieRecommender:
 
         Output: returns list of k similar movie IDs
         """
+        # print(type(X),  type(movie_mapper), type(movie_inv_mapper))
         X = X.T
         neighbour_ids = []
         movie_title = []
@@ -58,10 +59,10 @@ class MovieRecommender:
         for i in neighbour_ids:
             movie_rec.append(movie_titles[i])
         print(f"We recommend {', '.join(movie_rec)}:")
-        return neighbour_ids
+        return neighbour_ids, movie_rec
 
 
-    def filter_dataframe(df, movie_ids, location=None):
+    def filter_dataframe(self, df, movie_ids, location=None):
         '''
         df: pd dataframe
         movie_ids: list
@@ -74,14 +75,22 @@ class MovieRecommender:
         # Filter based on movie_ids
         filtered_df = df[df['movieId'].isin(movie_ids)]
 
+        # location_filtered_df = []
+
         # Filter based on location if provided
         if location is not None:
-            location_filtered_df = filtered_df[filtered_df['city/country'] == location]
+            # print(filtered_df['address'].str.lower())
+            # location_filtered_df = filtered_df[filtered_df['address'].str.lower().contains(location.lower())]
+            location_filtered_df = filtered_df.apply(lambda x: {'address': x['address'],'tags': x['tags'],'movieId': x['movieId'],'imgUrl': x['imgUrl'] } if location.lower() in x['address'].lower() else None, axis =1 )
             # If no matching location is found, show all locations of the filtered DataFrame
-            if location_filtered_df.empty:
+            location_filtered_df = [x for x in location_filtered_df if x is not None]
+            if not location_filtered_df:
                 print(f"No matching location found for '{location}'. Showing all locations.")
-                return filtered_df
+                return filtered_df.to_dict('records')
             else:
-                return location_filtered_df
+                return location_filtered_df #.to_dict('records')
+        
+        final_df = filtered_df.to_dict('records')
 
-        return filtered_df
+
+        return final_df
