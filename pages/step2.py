@@ -20,7 +20,7 @@ movie_name_list = [
     "The King's Speech"
 ]
 
-movie_id_list = [x for x in give_me_n_cold_start_movies(5) if x not in [50, 181, 121] ]
+movie_id_list = [x for x in give_me_n_cold_start_movies(15) if x not in [50, 181, 121] ]
 # these 3 movies are not in ml-latest dataset, so have removed from cold start list, should fix 
 # movies are Star wars, return of the jedi, independence day
 
