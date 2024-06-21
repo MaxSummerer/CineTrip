@@ -4,6 +4,8 @@ import pydeck as pdk
 import streamlit as st
 from opencage.geocoder import OpenCageGeocode
 import base64
+from movieLensUtils import load_locations_csv, search_in_ml_latest_by_name, search_in_ml_hundred_by_id
+from recommender import MovieRecommender
 
 
 def get_lat_lon(address):
@@ -18,8 +20,7 @@ def get_lat_lon(address):
         # garching:
         return 48.2488721, 11.6532477
 
-
-# given a dict of movie location and tags, the map with all info will be shown in this page
+locations_csv = load_locations_csv()
 example_dict = [{"address": "Baker Street Underground Station Undergound Ltd, Marylebone Rd, London NW1 5LJ",
                  "tags": "Sherlock Holmes Street"},
                 {"address": "Praed St, London W2 1HU",
@@ -27,6 +28,49 @@ example_dict = [{"address": "Baker Street Underground Station Undergound Ltd, Ma
                 {"address": "85 Albert Embankment, London SE11 5AW",
                  "tags": "Sky Fall"}
                 ]
+mr = None
+if 'mr_object' in st.session_state: # change to 'not in' and create new object for mr/ but why tho (see later)
+    mr = st.session_state['mr_object']
+
+if 'city' not in st.session_state and 'country' not in st.session_state: # go back to step1
+    city = 'Los Angeles'
+    country = 'USA'
+else:
+    city, country = st.session_state['city'], st.session_state['country']
+
+
+if 'recs' not in st.session_state: # change to 'not in' and redirect to step 2
+    recs = [50, 174, 181, 79, 96, 56, 172, 204, 121, 195]
+    # Star Wars (1977), Raiders of the Lost Ark (1981), Return of the Jedi (1983),
+    #  Fugitive, The (1993), Terminator 2: Judgment Day (1991), Pulp Fiction (1994),
+    # Empire Strikes Back, The (1980), Back to the Future (1985), Independence Day (ID4) (1996), 
+    # Terminator, The (1984)
+else:   
+    recs = st.session_state['recs']
+    recs_names = st.session_state['recs_names']
+    # recs_dict = dict(zip(recs, recs_names))
+    # print(recs_dict)
+recs_dict = {}
+filtered_recs = []
+# print("hello")
+for i in recs:
+    
+    # print("hi",i)
+    movie_details = search_in_ml_hundred_by_id(i)
+    # print(movie_details)
+    if len(movie_details["title"].values) == 0:
+        continue
+    other_movie_details = search_in_ml_latest_by_name(movie_details["title"].values[0])
+    # print(other_movie_details)
+    if len(other_movie_details["movieId"].values) > 0:
+        filtered_recs.append(other_movie_details["movieId"].values[0])
+        recs_dict[other_movie_details["movieId"].values[0]] = movie_details["title"].values[0]
+
+# print("_",city,"_")
+
+example_dict = mr.filter_dataframe(locations_csv, filtered_recs, city )
+    
+print(len(example_dict))
 
 geocoded_data = []
 for item in example_dict:
@@ -35,9 +79,10 @@ for item in example_dict:
     geocoded_data.append({
         "latitude": lat,
         "longitude": lon,
-        "tags": item['tags']
+        "tags": item['tags'],
+        "movieId" : item['movieId']
     })
-
+# print(geocoded_data)
 st.title('Results: recommended Locations')
 # Create Pydeck map
 if geocoded_data:
@@ -68,6 +113,7 @@ if geocoded_data:
             "coordinates": [data['longitude'], data['latitude']],
             "tags": data['tags'],
             "icon_data": icon_data,
+            "movieId": data['movieId']
         }
         for data in geocoded_data
     ]
@@ -99,7 +145,8 @@ if geocoded_data:
             for item in example_dict:
                 with st.container(border=True):
                     st.write(item["address"])
-                    st.write(item["tags"])
+                    # st.write(item["tags"])
+                    st.write("In "+recs_dict[item["movieId"]]+", ",item["tags"])
 
 else:
     st.write("No geocoded data available.")
