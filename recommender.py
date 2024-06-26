@@ -8,7 +8,7 @@ class MovieRecommender:
         self.movie_mapper = movie_mapper
         self.movie_inv_mapper = movie_inv_mapper
 
-    def find_similar_movies(self, movie_ids, movie_titles, X, movie_mapper, movie_inv_mapper, k, metric='cosine'):
+    def find_similar_movies(self, movie_ids, dislikes ,movie_titles, X, movie_mapper, movie_inv_mapper, k, metric='cosine'):
         """
         Finds k-nearest neighbours for a given list of movie ids.
 
@@ -32,21 +32,22 @@ class MovieRecommender:
 
         # Get the vectors for each movie ID
         movie_indices = [movie_mapper[movie_id] for movie_id in movie_ids]
+        dislike_indices = [movie_mapper[movie_id] for movie_id in dislikes]
         movie_vecs = [X[movie_ind] for movie_ind in movie_indices]
 
         # Compute the average vector
         avg_movie_vec = np.mean(movie_vecs, axis=0).reshape(1, -1)
 
         # use k+1 since kNN output includes the movieId of interest
-        kNN = NearestNeighbors(n_neighbors=k+len(movie_ids), algorithm="brute", metric=metric)
+        kNN = NearestNeighbors(n_neighbors=k+len(movie_ids)+len(dislikes), algorithm="brute", metric=metric)
         kNN.fit(X)
         neighbours = kNN.kneighbors(avg_movie_vec, return_distance=False).flatten()
-
+        # print((movie_ids+dislikes))
         # Extract movie IDs, ignoring the input movie IDs
         for neighbour in neighbours:
             if len(neighbour_ids) >= k:
                 break
-            if movie_inv_mapper[neighbour] not in movie_ids:
+            if movie_inv_mapper[neighbour] not in (movie_ids+dislikes):
                 neighbour_ids.append(movie_inv_mapper[neighbour])
 
         ## This part might need some modification when merged with UI.
