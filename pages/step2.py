@@ -38,6 +38,9 @@ if 'idx' not in st.session_state:
 if 'likes' not in st.session_state:
     st.session_state['likes'] = []
 
+if 'dislikes' not in st.session_state:
+    st.session_state['dislikes'] = []
+
 if 'recs' not in st.session_state:
     st.session_state['recs'] = None
 
@@ -102,7 +105,7 @@ def calculate_recommendations():
     mr = MovieRecommender(X, movie_titles ,movie_mapper, movie_inv_mapper) # TODO: from here!!
     st.session_state['mr_object'] = mr
     # print(type(X), type(user_mapper), type(user_inv_mapper), type(movie_mapper), type(movie_inv_mapper))
-    recommended_movie_ids, recommended_movies_names = mr.find_similar_movies(st.session_state['likes'],movie_titles, X, movie_mapper, movie_inv_mapper, 10)
+    recommended_movie_ids, recommended_movies_names = mr.find_similar_movies(st.session_state['likes'],st.session_state['dislikes'],movie_titles, X, movie_mapper, movie_inv_mapper, 10)
     print(recommended_movies_names)
     html_content = f"""
     <div style="max-width: 600px; max-height: 350px; overflow-x: hidden; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
@@ -126,7 +129,7 @@ with left_column:
     with col1:
         if st.button("Unlike"):
             st.session_state.idx += 1
-            # like_list.append(0)
+            st.session_state['dislikes'].append(movie_id_list[st.session_state.idx-1])
             if st.session_state.idx >= len(movie_id_list):
                 st.session_state.idx = 0
                 calculate_recommendations()
@@ -136,7 +139,6 @@ with left_column:
     with col3:
         if st.button("like"):
             st.session_state.idx += 1
-            # like_list.append(1)
             st.session_state['likes'].append(movie_id_list[st.session_state.idx-1])
             if st.session_state.idx >= len(movie_id_list):
                 st.session_state.idx = 0
