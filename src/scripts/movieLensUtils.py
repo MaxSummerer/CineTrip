@@ -5,6 +5,11 @@ import pandas as pd
 import numpy as np
 from scipy.sparse import csr_matrix
 
+DATA_FOLDER_PATH = "src/data/"
+ML_LATEST_PATH = DATA_FOLDER_PATH+"ml-latest/"
+ML_HUNDRED_PATH = DATA_FOLDER_PATH+"ml-100k/"
+ML_HUNDRED_CLEANED_PATH = DATA_FOLDER_PATH+"ml-100k-cleaned/"
+
 
 def TMDB_movie_search_by_name(movie_name):
     url = "https://api.themoviedb.org/3/search/movie?query="+movie_name+"&include_adult=false&language=en-US&page=1"
@@ -114,7 +119,7 @@ def dataframe_with_locations_and_TMDBid(dict_ele, movies_df, links_data):
 
 
 def load_links_data():
-    df = pd.read_csv("data/ml-latest/links.csv",dtype = {'movieId': str, 'imdbId': str, 'tmdbId': str})
+    df = pd.read_csv(ML_LATEST_PATH+"links.csv",dtype = {'movieId': str, 'imdbId': str, 'tmdbId': str})
     return df
 
 
@@ -166,12 +171,12 @@ def extract_movies_and_locations_from_json_file(file_path, ds_df, movies_df, lin
 
 
 def search_in_ml_latest_by_name(movie_name):
-    df = pd.read_csv("data/ml-latest/movies.csv")
+    df = pd.read_csv(ML_LATEST_PATH+"movies.csv")
     return df[df["title"] == movie_name]
 
 
 def search_in_ml_hundred_by_id(movie_id):
-    df = pd.read_csv('ml-100k/u.item', sep='|', encoding='latin-1', header=None,
+    df = pd.read_csv(ML_HUNDRED_PATH+'u.item', sep='|', encoding='latin-1', header=None,
                      names=['movie_id', 'title', 'release_date', 'video_release_date', 'IMDb_URL',
                             'unknown', 'Action', 'Adventure', 'Animation', 'Children', 'Comedy', 'Crime',
                             'Documentary', 'Drama', 'Fantasy', 'Film-Noir', 'Horror', 'Musical', 'Mystery',
@@ -214,9 +219,9 @@ def create_X(df):
 
 def give_me_data():
     # Load the datase
-    ratings = pd.read_csv('ml-100k/u.data', sep='\t', names=['user_id', 'item_id', 'rating', 'timestamp'])
+    ratings = pd.read_csv(ML_HUNDRED_PATH+'u.data', sep='\t', names=['user_id', 'item_id', 'rating', 'timestamp'])
     # Load the movies dataset with appropriate column names
-    movies = pd.read_csv('ml-100k/u.item', sep='|', encoding='latin-1', header=None,
+    movies = pd.read_csv(ML_HUNDRED_PATH+'u.item', sep='|', encoding='latin-1', header=None,
                         names=['movie_id', 'title', 'release_date', 'video_release_date', 'IMDb_URL',
                                 'unknown', 'Action', 'Adventure', 'Animation', 'Children', 'Comedy', 'Crime',
                                 'Documentary', 'Drama', 'Fantasy', 'Film-Noir', 'Horror', 'Musical', 'Mystery',
@@ -242,13 +247,13 @@ def give_me_data():
     return data, movie_titles
 
 def load_locations_csv():
-    locations = pd.read_csv("string_locations.csv")
+    locations = pd.read_csv(DATA_FOLDER_PATH+"string_locations.csv")
     locations.columns = ['movieId','imgUrl','tags','address']
     return locations
 
 
 def search_in_ml_hundred_by_name(movie_name):
-    df = pd.read_csv('ml-100k/u.item', sep='|', encoding='latin-1', header=None,
+    df = pd.read_csv(ML_HUNDRED_PATH+'u.item', sep='|', encoding='latin-1', header=None,
                      names=['movie_id', 'title', 'release_date', 'video_release_date', 'IMDb_URL',
                             'unknown', 'Action', 'Adventure', 'Animation', 'Children', 'Comedy', 'Crime',
                             'Documentary', 'Drama', 'Fantasy', 'Film-Noir', 'Horror', 'Musical', 'Mystery',
@@ -258,10 +263,10 @@ def search_in_ml_hundred_by_name(movie_name):
 
 
 def search_in_ml_latest_by_id(movie_id):
-    df = pd.read_csv("data/ml-latest/movies.csv")
+    df = pd.read_csv(ML_LATEST_PATH+"movies.csv")
     print(df)
     return df[df["movieId"] == str(movie_id)]
 
 def give_me_n_cold_start_movies(n=15):
-    df = pd.read_csv("ml-100k-cleaned/cold_start_movies.csv")
+    df = pd.read_csv(ML_HUNDRED_CLEANED_PATH+"cold_start_movies.csv")
     return df.head(n)["movieId"].values

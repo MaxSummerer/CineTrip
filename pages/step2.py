@@ -6,23 +6,24 @@ import streamlit as st
 import pandas as pd
 import time
 
-from recommender import MovieRecommender
+from src.scripts.recommender import MovieRecommender
 
-from movieLensUtils import search_in_ml_latest_by_name, load_links_data, search_in_ml_hundred_by_id, create_X, give_me_data, give_me_n_cold_start_movies
+from src.scripts.movieLensUtils import search_in_ml_latest_by_name, load_links_data, search_in_ml_hundred_by_id, create_X, give_me_data, give_me_n_cold_start_movies
 
 
 # given a movie name list and their information will be shown in this page
-movie_name_list = [
-    "Inception",
-    "Harry Potter",
-    "Tenet",
-    "Iron Man",
-    "The King's Speech"
-]
+# movie_name_list = [
+#     "Inception",
+#     "Harry Potter",
+#     "Tenet",
+#     "Iron Man",
+#     "The King's Speech"
+# ]
 
 movie_id_list = [x for x in give_me_n_cold_start_movies(15) if x not in [50, 181, 121] ]
 # these 3 movies are not in ml-latest dataset, so have removed from cold start list, should fix 
 # movies are Star wars, return of the jedi, independence day
+# TODO: change after model runs for like, dislike, unknowns
 
 # resize the image
 def resize_image(url, size=(500, 550)):
@@ -166,5 +167,3 @@ with right_column:
         """
 
     st.markdown(html_content, unsafe_allow_html=True)
-
-# print(st.session_state['city'])
