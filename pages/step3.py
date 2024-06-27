@@ -7,8 +7,8 @@ import base64
 import requests
 from PIL import Image
 from io import BytesIO
-from movieLensUtils import load_locations_csv, search_in_ml_latest_by_name, search_in_ml_hundred_by_id, load_links_data
-from recommender import MovieRecommender
+from src.scripts.movieLensUtils import load_locations_csv, search_in_ml_latest_by_name, search_in_ml_hundred_by_id, load_links_data
+from src.scripts.recommender import MovieRecommender
 
 
 def resize_image(url, size=(500, 550)):
@@ -69,6 +69,8 @@ example_dict = [{"address": "Baker Street Underground Station Undergound Ltd, Ma
                  "tags": "Sky Fall"}
                 ]
 mr = None
+
+# TODO: change these if blocks for proper navigation
 if 'mr_object' in st.session_state: # change to 'not in' and create new object for mr/ but why tho (see later)
     mr = st.session_state['mr_object']
 
@@ -88,14 +90,11 @@ if 'recs' not in st.session_state: # change to 'not in' and redirect to step 2
 else:   
     recs = st.session_state['recs']
     recs_names = st.session_state['recs_names']
-    # recs_dict = dict(zip(recs, recs_names))
-    # print(recs_dict)
+    
 recs_dict = {}
 filtered_recs = []
-# print("hello")
+
 for i in recs:
-    
-    # print("hi",i)
     movie_details = search_in_ml_hundred_by_id(i)
     # print(movie_details)
     if len(movie_details["title"].values) == 0:
@@ -107,11 +106,11 @@ for i in recs:
         recs_dict[other_movie_details["movieId"].values[0]] = movie_details["title"].values[0]
 
 # print("_",city,"_")
-print(recs_dict)
+# print(recs_dict)
 
 example_dict = mr.filter_dataframe(locations_csv, filtered_recs, city )
     
-print(len(example_dict))
+# print(len(example_dict))
 
 geocoded_data = []
 for item in example_dict:
@@ -141,7 +140,7 @@ if geocoded_data:
             return base64.b64encode(image_file.read()).decode()
 
 
-    icon_image_base64 = encode_image("data/img/location-pin.png")
+    icon_image_base64 = encode_image("src/data/img/location-pin.png")
     icon_image_data = f"data:image/png;base64,{icon_image_base64}"
     icon_data = {
         "url": icon_image_data,
@@ -198,25 +197,6 @@ if geocoded_data:
 
     with heading1:
         st.subheader("These are the movies that we think you like!", divider='rainbow')
-    # next_col1, next_col2 =st.columns([1,8])
-    # with next_col2:
-    #     # address information
-        
-    #     for item in recs_dict.keys():
-    #         with st.container(height=250,border=True):
-    #             if load_image(item):
-    #                 st.image(load_image(item))
-    #             st.write(recs_dict[item])
-    #             # st.write(item["tags"])
-    #             # st.write("In "+recs_dict[item["movieId"]]+", ",item["tags"])
-    # cols = st.columns([1]*len(filtered_recs))
-
-    # for item in range(len(filtered_recs)):
-    #     with cols[item]:
-    #         with st.container(height=250,border=True):
-    #             if load_image(filtered_recs[item]):
-    #                 st.image(load_image(filtered_recs[item]))
-    #             st.write(recs_dict[filtered_recs[item]])
 
     len_rows = len(filtered_recs) // 4
     actual_cut = len(filtered_recs) / 4

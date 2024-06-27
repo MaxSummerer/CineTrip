@@ -3,9 +3,12 @@ import json
 import requests
 from opencage.geocoder import OpenCageGeocode
 
+CITIES_FOLDER_PATH = "src/data/cities/"
+
+
 # get city and country name from json files
 def get_country_fullname():
-    file_path = 'data/cities/countries.json'
+    file_path = CITIES_FOLDER_PATH+'countries.json'
     country_data = {}
     try:
         with open(file_path, 'r', encoding='utf-8') as f_file:
@@ -26,7 +29,7 @@ def get_country_fullname():
 
 def get_city_name():
     country_data = get_country_fullname()
-    file_path = 'data/cities/cities.json'
+    file_path = CITIES_FOLDER_PATH+'cities.json'
     try:
         with open(file_path, 'r', encoding='utf-8') as fcc_file:
             city_data = json.load(fcc_file)
