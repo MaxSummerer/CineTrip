@@ -9,3 +9,4 @@ pillow
 openai
 os
 json
+regex
