@@ -3,6 +3,8 @@ import base64
 import requests
 from PIL import Image
 from io import BytesIO
+import pandas as pd
+import numpy as np
 
 st.set_page_config(initial_sidebar_state="collapsed", layout="wide")
 
@@ -66,9 +68,6 @@ with col23:
 
 if st.button("✨Let's start!"):
     st.switch_page("pages/step1.py")
-
-import pandas as pd
-import numpy as np
 
 if "df" not in st.session_state:
     st.session_state.df = pd.DataFrame(
