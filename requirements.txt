@@ -6,3 +6,6 @@ numpy
 pydeck
 altair
 pillow
+openai
+os
+json
