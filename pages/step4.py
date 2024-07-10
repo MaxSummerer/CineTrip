@@ -1,3 +1,4 @@
+from ast import literal_eval
 import numpy as np
 import pandas as pd
 import pydeck as pdk
@@ -7,10 +8,13 @@ import base64
 import requests
 from PIL import Image
 from io import BytesIO
+import math
 from src.scripts.movieLensUtils import load_locations_csv, search_in_ml_latest_by_name, search_in_ml_hundred_by_id, \
     load_links_data
 from src.scripts.recommender import MovieRecommender
+from src.scripts.geocodingUtils import fromat_loctions_for_graphhopper, request_routes_for_locations, haversine
 
+distance_radius = 50
 
 def resize_image(url, size=(500, 550)):
     response = requests.get(url)
@@ -66,6 +70,24 @@ def get_lat_lon(address):
         return 48.2488721, 11.6532477
 
 
+def filter_based_on_distance(locations_array, city):
+    geocoded_data = []
+    city_lat, city_lon = get_lat_lon(city)
+    # print(city, city_lat, city_lon)
+    for item in locations_array:
+        lat, lon = get_lat_lon(item['address'])
+        distance = haversine(lat, lon, city_lat, city_lon)
+        if distance < distance_radius:
+            geocoded_data.append({
+                "latitude": lat,
+                "longitude": lon,
+                "tags": item['tags'],
+                "movieId": item['movieId']
+            })
+    return geocoded_data
+
+
+
 locations_csv = load_locations_csv()
 example_dict = [{"address": "Baker Street Underground Station Undergound Ltd, Marylebone Rd, London NW1 5LJ",
                  "tags": "Sherlock Holmes Street"},
@@ -101,6 +123,15 @@ else:
     recs = st.session_state['recs']
     recs_names = st.session_state['recs_names']
 
+if 'selected_recs' in st.session_state:
+    selected_recs = st.session_state['selected_recs']
+    # print("seleceted")
+    # print(arecs)
+    # print(recs)
+    if selected_recs:
+        recs = selected_recs
+    # print(recs_names)
+
 recs_dict = {}
 filtered_recs = []
 
@@ -118,12 +149,13 @@ for i in recs:
 # print("_",city,"_")
 # print(recs_dict)
 if mr:
-    example_dict = mr.filter_dataframe(locations_csv, filtered_recs, city)
+    example_dict = mr.filter_dataframe(locations_csv, filtered_recs)
 
-# print(len(example_dict))
+# print(example_dict)
 
 geocoded_data = []
 for item in example_dict:
+    # print(item)
     lat, lon = get_lat_lon(item['address'])
 
     geocoded_data.append({
@@ -132,7 +164,11 @@ for item in example_dict:
         "tags": item['tags'],
         "movieId": item['movieId']
     })
-print(geocoded_data)
+# print("compare datas now for ", city)
+# print(mr.filter_dataframe(locations_csv, filtered_recs, city))
+# print(filter_based_on_distance(example_dict, city))
+
+geocoded_data = filter_based_on_distance(example_dict, city)
 st.title('Results: Recommended Movie Locations')
 # Create Pydeck map
 if geocoded_data:
@@ -167,6 +203,28 @@ if geocoded_data:
         }
         for data in geocoded_data
     ]
+
+    deck_layers = []
+
+    formatted_locations = fromat_loctions_for_graphhopper(data)
+    available_route, routes_dataset = request_routes_for_locations(formatted_locations)
+    # print( available_route)
+    # print(routes_dataset)
+
+    if available_route:
+        path_layer = pdk.Layer(
+            "PathLayer",
+            data=routes_dataset,
+            get_path='path',
+            # get_width=100,
+            # get_color='[231, 77, 62, 200]',
+            get_color='[0, 194, 255, 200]',
+            pickable=True,
+            auto_highlight=True,
+            width_min_pixels=3,
+        )
+        deck_layers.append(path_layer)
+
     icon_layer = pdk.Layer(
         type="IconLayer",
         data=data,
@@ -177,12 +235,16 @@ if geocoded_data:
         pickable=True,
     )
 
+    deck_layers.append(icon_layer)
+
+    # print( deck_layers)
+
     tooltip = {"html": "{tags}"}
 
     r = pdk.Deck(
         map_style='mapbox://styles/mapbox/streets-v11',
         initial_view_state=initial_view_state,
-        layers=[icon_layer],
+        layers=deck_layers,
         tooltip=tooltip,
     )
     col1, col2 = st.columns([2, 1])
@@ -205,7 +267,7 @@ if geocoded_data:
     heading1, heading2 = st.columns([5, 1])
 
     with heading1:
-        st.subheader("These are the movies that we think you like!", divider='rainbow')
+        st.subheader("Movies you selected!", divider='rainbow')
 
     len_rows = len(filtered_recs) // 4
     actual_cut = len(filtered_recs) / 4
@@ -242,10 +304,10 @@ if geocoded_data:
 else:
     st.write("No geocoded data available.")
 
-st.subheader("One more try?", divider="rainbow")
+st.subheader("Not satisfied with the results?", divider="rainbow")
 col1, col2 = st.columns(2)
 with col1:
-    if st.button("Change the location"):
+    if st.button("Change your location"):
         data=[]
         geocoded_data = []
         st.session_state.idx=0
@@ -255,7 +317,7 @@ with col1:
         st.session_state["show"] = -1
         st.switch_page("pages/step1.py")
 with col2:
-    if st.button("Choose the movie"):
+    if st.button("Choose the movies again"):
         data=[]
         geocoded_data = []
         st.session_state.idx=0

@@ -10,7 +10,9 @@ from src.scripts.recommender import MovieRecommender
 
 from src.scripts.movieLensUtils import search_in_ml_latest_by_name, load_links_data, search_in_ml_hundred_by_id, create_X, give_me_data, give_me_n_cold_start_movies
 
-movie_id_list = [x for x in give_me_n_cold_start_movies(15) if x not in [50, 181, 121] ]
+st.set_page_config(initial_sidebar_state="collapsed", layout="wide")
+
+movie_id_list = [x for x in give_me_n_cold_start_movies(5) if x not in [50, 181, 121] ]
 
 # these 3 movies are not in ml-latest dataset, so have removed from cold start list, should fix
 # movies are Star wars, return of the jedi, independence day
@@ -116,6 +118,7 @@ def calculate_recommendations():
     # {recommended_movies_names}
     # """
     st.session_state['recs'] = recommended_movie_ids
+    print(recommended_movie_ids)
     st.session_state['recs_names'] = recommended_movies_names
 
 
@@ -165,7 +168,7 @@ with right_column:
     )
     col1, col2, col3 = st.columns(3)
     with col1:
-        if st.button("Unlike"):
+        if st.button("Dislike"):
             st.session_state.idx += 1
             st.session_state['dislikes'].append(movie_id_list[st.session_state.idx - 1])
             if st.session_state.idx >= len(movie_id_list):
