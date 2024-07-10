@@ -83,12 +83,13 @@ def main():
     genres = ["Horror", "Action", "Drama"]
     interests = ["Castles", "Restaurants", "High Society"]
     perimeter = 50
-    recommender = create_recommendation(location, genres, interests, perimeter)
+    recommendation = create_recommendation(location, genres, interests, perimeter)
 
-    if recommender:
+    if recommendation:
         # Print the extracted JSON data
         print("Here is your questionnaire in JSON format:")
-        print(recommender)
+        print(recommendation)
+        print(json.dumps(recommendation, indent=4))
     else:
         print("Failed to create questionnaire")
 
