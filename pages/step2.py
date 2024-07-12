@@ -14,8 +14,8 @@ from src.scripts.movieLensUtils import search_in_ml_latest_by_name, load_links_d
 
 st.set_page_config(initial_sidebar_state="collapsed", layout="wide")
 
-# movie_id_list = [x for x in give_me_n_cold_start_movies(5) if x not in [50, 181, 121] ]
-movie_id_list = [1,2,3]
+# movie_id_list = [x for x in give_me_n_cold_start_movies(8) if x not in [50, 181, 121] ]
+movie_id_list = give_me_n_cold_start_movies(8)
 
 # these 3 movies are not in ml-latest dataset, so have removed from cold start list, should fix
 # movies are Star wars, return of the jedi, independence day
