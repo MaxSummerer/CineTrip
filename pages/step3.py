@@ -5,7 +5,7 @@ from PIL import Image
 from io import BytesIO
 
 from src.scripts.movieLensUtils import search_in_ml_latest_by_name, load_links_data, search_in_ml_hundred_by_id, \
-    create_X, give_me_data, give_me_n_cold_start_movies
+    create_X, give_me_data, give_me_n_cold_start_movies, search_in_ml_latest_by_id
 
 IMG_FOLDER_PATH = "src/data/img/"
 
@@ -41,18 +41,18 @@ def load_image(movieId, size=(500, 550)):
 
 
 def get_imdbID_by_movieId(movie_id):
-    movie_details = search_in_ml_hundred_by_id(movie_id)
+    # movie_details = search_in_ml_hundred_by_id(movie_id)
     # print(movie_details["title"].values[0])
-    other_movie_details = search_in_ml_latest_by_name(movie_details["title"].values[0])
+    # other_movie_details = search_in_ml_latest_by_name(movie_details["title"].values[0])
     # print(other_movie_details)
-    if len(other_movie_details["movieId"].values) == 0:
-        print("isssue with ", movie_details["title"].values[0])
-        return None
-    other_movie_id = other_movie_details["movieId"].values[0]
+    # if len(other_movie_details["movieId"].values) == 0:
+    #     print("isssue with ", movie_details["title"].values[0])
+    #     return None
+    # other_movie_id = other_movie_details["movieId"].values[0]
     # print(other_movie_id)
     links_data = load_links_data()
-    other_movie_id = str(other_movie_id)
-    imdbId = links_data[links_data['movieId'] == other_movie_id]['imdbId']
+    movie_id = str(movie_id)
+    imdbId = links_data[links_data['movieId'] == movie_id]['imdbId']
     # print(movie_id, "imdb le lo", imdbId.values[0])
     return imdbId.values[0]
 
@@ -198,7 +198,7 @@ if 'recs' in st.session_state and 'recs_names' in st.session_state:
                     if load_image(id):
                         st.image(load_image(id, (100, 100)), width=67)
                 with name_col:
-                    movie_name = search_in_ml_hundred_by_id(id)["title"].values[0]
+                    movie_name = search_in_ml_latest_by_id(id)["title"].values[0]
                     st.markdown(f'<h3 class="centered">{movie_name}</h3>', unsafe_allow_html=True)
                 with read_more_col:
                     if st.button("Read more", key=id*10):

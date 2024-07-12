@@ -30,7 +30,7 @@ def fromat_loctions_for_graphhopper(ui_locations):
         ind = ind + 1
     return graphopper_locations
 
-def request_routes_for_locations(graphopper_locations):
+def request_routes_for_locations(graphopper_locations, city_lon, city_lat):
     payload = {
     "vehicles": [
         {
@@ -38,8 +38,8 @@ def request_routes_for_locations(graphopper_locations):
         "type_id": "cargo-bike",
         "start_address": {
             "location_id": "la",
-            "lon": -118.242766, 
-            "lat": 34.0536909
+            "lon": city_lon, 
+            "lat": city_lat
         },
         "max_jobs": 10
         }
@@ -81,7 +81,7 @@ def request_routes_for_locations(graphopper_locations):
     data = response.json()
 
     if data['status'] == 'finished':
-        print(data['solution']['routes'][0]['points'])
+        # print(data['solution']['routes'][0]['points'])
         paths = data['solution']['routes'][0]['points']
         print(len(paths))
         ind = 0
@@ -95,7 +95,8 @@ def request_routes_for_locations(graphopper_locations):
             return_data.append(ele_dict)
             ind = ind +1
         
-        # print(return_data)
+        
+        print("got_routes",len(return_data))
         # with open('data.json', 'w') as f:
         #     json.dump(return_data, f)
         return True, pd.DataFrame(return_data)
