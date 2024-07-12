@@ -249,6 +249,7 @@ def give_me_data():
 def load_locations_csv():
     locations = pd.read_csv(DATA_FOLDER_PATH+"string_locations.csv")
     locations.columns = ['movieId','imgUrl','tags','address']
+    locations.movieId = locations.movieId.astype(str) 
     return locations
 
 
@@ -263,8 +264,8 @@ def search_in_ml_hundred_by_name(movie_name):
 
 
 def search_in_ml_latest_by_id(movie_id):
-    df = pd.read_csv(ML_LATEST_PATH+"movies.csv")
-    print(df)
+    df = pd.read_csv(ML_LATEST_PATH+"movies.csv",dtype = {'movieId': str})
+    # print(df)
     return df[df["movieId"] == str(movie_id)]
 
 def give_me_n_cold_start_movies(n=15):

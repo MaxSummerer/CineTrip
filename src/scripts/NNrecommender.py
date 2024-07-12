@@ -10,7 +10,8 @@ from sklearn.model_selection import train_test_split
 # from keras.callbacks import Callback, ModelCheckpoint
 from sklearn.metrics import mean_absolute_error
 from sklearn.preprocessing import MinMaxScaler
-from keras.models import load_model
+# from keras.models import load_model
+from tensorflow.keras.models import load_model
 import pickle
 import matplotlib.pyplot as plt
 
@@ -77,7 +78,9 @@ def preprocess_data(ratings, movies):
 # Generate movie embeddings
 def get_movie_embeddings(model, num_movies):
     movie_layer = model.get_layer('movie_embedding')
+    print("1")
     movie_weights = movie_layer.get_weights()[0]
+    print("2")
     return movie_weights
 
 # Find similar movies using learned embeddings
@@ -103,17 +106,17 @@ def provide_recommendations_for(movie_ids = [1, 2, 3]):
     # print("2")
 
     # model = build_model(num_users, num_movies)
-    model = load_model('best_model_try2.h5')
-    # print("3")
+    model = load_model('best_model_try2.h5', compile=False)
+    print("3")
     # history = train_model(model, ratings)
 
     movie_embeddings = get_movie_embeddings(model, num_movies)
-    # print("4")
+    print("4")
     # Example movie_ids for which to find similar movies
     # movie_ids = [1, 2, 3]  # Example movie IDs liked by the user
 
     similar_movie_ids = find_similar_movies_nn(movie_ids, movie_embeddings, movie_id_to_index, movie_index_to_id)
-    print(f"Similar movies: {similar_movie_ids}")
+    # print(f"Similar movies: {similar_movie_ids}")
 
     return similar_movie_ids
 

@@ -10,7 +10,7 @@ from src.scripts.recommender import MovieRecommender
 
 from src.scripts.NNrecommender import provide_recommendations_for
 
-from src.scripts.movieLensUtils import search_in_ml_latest_by_name, load_links_data, search_in_ml_hundred_by_id, create_X, give_me_data, give_me_n_cold_start_movies
+from src.scripts.movieLensUtils import search_in_ml_latest_by_name, load_links_data, search_in_ml_hundred_by_id, create_X, give_me_data, give_me_n_cold_start_movies, search_in_ml_latest_by_id
 
 st.set_page_config(initial_sidebar_state="collapsed", layout="wide")
 
@@ -54,8 +54,8 @@ if 'recs_names' not in st.session_state:
     st.session_state['recs_names'] = None
 
 
-if 'mr_object' not in st.session_state:
-    st.session_state['mr_object'] = None
+# if 'mr_object' not in st.session_state:
+#     st.session_state['mr_object'] = None
 
 
 
@@ -81,7 +81,8 @@ def get_imdbID_by_movieId(movie_id):
     # other_movie_id = other_movie_details["movieId"].values[0]
     # print(other_movie_id)
     links_data = load_links_data()
-    other_movie_id = str(other_movie_id)
+    movie_id = str(movie_id)
+    print(movie_id)
     imdbId = links_data[links_data['movieId'] == movie_id]['imdbId']
     # print(movie_id, "imdb le lo", imdbId.values[0])
     return imdbId.values[0]
@@ -133,6 +134,14 @@ def calculate_recommendations_from_NN():
     # st.session_state['mr_object'] = mr
     # print(type(X), type(user_mapper), type(user_inv_mapper), type(movie_mapper), type(movie_inv_mapper))
     recommended_movie_ids = provide_recommendations_for(st.session_state['likes'])
+    recommended_movies_names = []
+    for i in recommended_movie_ids:
+        movie_details = search_in_ml_latest_by_id(i)
+        if len(movie_details["title"].values) == 0:
+            print("isssue with ", i)
+            recommended_movies_names.append("Unknown Movie")
+        else:
+            recommended_movies_names.append(movie_details["title"].values[0])
     # print(recommended_movies_names)
     # html_content = f"""
     # <div style="max-width: 600px; max-height: 350px; overflow-x: hidden; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
@@ -140,8 +149,8 @@ def calculate_recommendations_from_NN():
     # """
     st.session_state['recs'] = recommended_movie_ids
     print(recommended_movie_ids)
-    st.session_state['recs_names'] = ["",'','','']#recommended_movies_names
-    return
+    st.session_state['recs_names'] = recommended_movies_names#["",'','','']#
+    
 
 
 col1,col2=st.columns([1,1])
@@ -195,7 +204,7 @@ with right_column:
             st.session_state['dislikes'].append(movie_id_list[st.session_state.idx - 1])
             if st.session_state.idx >= len(movie_id_list):
                 st.session_state.idx = 0
-                calculate_recommendations()
+                # calculate_recommendations()
                 calculate_recommendations_from_NN()
                 st.switch_page("pages/step3.py")
             st.rerun()
@@ -205,7 +214,7 @@ with right_column:
             st.session_state['didntWatch'].append(movie_id_list[st.session_state.idx - 1])
             if st.session_state.idx >= len(movie_id_list):
                 st.session_state.idx = 0
-                calculate_recommendations()
+                # calculate_recommendations()
                 calculate_recommendations_from_NN()
                 st.switch_page("pages/step3.py")
             st.rerun()
@@ -215,7 +224,7 @@ with right_column:
             st.session_state['likes'].append(movie_id_list[st.session_state.idx - 1])
             if st.session_state.idx >= len(movie_id_list):
                 st.session_state.idx = 0
-                calculate_recommendations()
+                # calculate_recommendations()
                 calculate_recommendations_from_NN()
                 st.switch_page("pages/step3.py")
             st.rerun()

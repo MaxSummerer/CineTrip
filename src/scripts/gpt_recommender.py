@@ -24,7 +24,8 @@ def create_recommendation(location, movies, perimeter=75):
     - city/country
     - area/street
     - location
-    - longitude/latitude
+    - longitude
+    - latitude
     - description of the movie
     - Description of the scene that played at the scene
 
@@ -60,7 +61,7 @@ def create_recommendation(location, movies, perimeter=75):
     ]
     """
 
-    print(prompt)
+    # print(prompt)
 
     completion = client.chat.completions.create(
         model="gpt-3.5-turbo",
@@ -80,9 +81,9 @@ def create_recommendation(location, movies, perimeter=75):
     return response
 
 
-def main():
-    location = "Munich"
-    movies = ["Inception", "Top Gun", "Mission Impossible"]
+def get_recommendations_from_GPT(location, movies):
+    # location = "Munich"
+    # movies = ["Inception", "Top Gun", "Mission Impossible"]
     interests = ["Castles", "Restaurants", "High Society"]
     perimeter = 75
     recommendation = create_recommendation(location, movies, perimeter)
@@ -90,11 +91,23 @@ def main():
     if recommendation:
         # Print the extracted JSON data
         print("Here are your recommendations in JSON format:")
-        print(recommendation)
         print(json.dumps(recommendation, indent=4))
+        return recommendation
     else:
         print("Failed to generate recommendations")
 
 
-if __name__ == "__main__":
-    main()
+# GPT_locations = get_recommendations_from_GPT('munich',["Inception", "Top Gun", "Mission Impossible"])
+# print(GPT_locations)
+# data = [
+#     {
+#         "coordinates": data['longitude_latitude'],
+#         "tags": data['locationRef'],
+#         "icon_data": icon_data,
+#         "movieId": ind,
+#         "title": data['movie_name'],
+#         "address": data["location"]+", "+data['area_street']+", "+data['city_country']
+#     }
+#     for ind, data in enumerate(GPT_locations['movies'])
+# ]
+# print(data)

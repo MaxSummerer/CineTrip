@@ -10,8 +10,9 @@ from PIL import Image
 from io import BytesIO
 import math
 from src.scripts.movieLensUtils import load_locations_csv, search_in_ml_latest_by_name, search_in_ml_hundred_by_id, \
-    load_links_data
+    load_links_data, create_X, give_me_data, search_in_ml_latest_by_id
 from src.scripts.recommender import MovieRecommender
+from src.scripts.gpt_recommender import get_recommendations_from_GPT
 from src.scripts.geocodingUtils import fromat_loctions_for_graphhopper, request_routes_for_locations, haversine
 
 distance_radius = 75
@@ -78,6 +79,7 @@ def filter_based_on_distance(locations_array, city):
         lat, lon = get_lat_lon(item['address'])
         distance = haversine(lat, lon, city_lat, city_lon)
         if distance < distance_radius:
+            print("adding ", item['address'])
             geocoded_data.append({
                 "latitude": lat,
                 "longitude": lon,
@@ -101,11 +103,15 @@ example_dict = [{"address": "Baker Street Underground Station Undergound Ltd, Ma
 mr = None
 
 # TODO: change these if blocks for proper navigation
-if 'mr_object' in st.session_state:  # change to 'not in' and create new object for mr/ but why tho (see later)
-    mr = st.session_state['mr_object']
+# if 'mr_object' not in st.session_state:  # change to 'not in' and create new object for mr/ but why tho (see later)
+data, movie_titles = give_me_data()
+df = data.iloc[:, :3]
+df = df.rename(columns={df.columns[1]: 'movie_id'})
+X, user_mapper, movie_mapper, user_inv_mapper, movie_inv_mapper = create_X(df)    
+mr = MovieRecommender(X, movie_titles ,movie_mapper, movie_inv_mapper)
 
 if 'city' not in st.session_state and 'country' not in st.session_state:  # go back to step1
-    city = 'Los Angeles'
+    city = 'Chicago'
     country = 'USA'
 else:
     city, country = st.session_state['city'], st.session_state['country']
@@ -138,22 +144,22 @@ recs_dict = {}
 filtered_recs = []
 
 for i in recs:
-    movie_details = search_in_ml_hundred_by_id(i)
+    movie_details = search_in_ml_latest_by_id(i)
     # print(movie_details)
-    if len(movie_details["title"].values) == 0:
-        continue
-    other_movie_details = search_in_ml_latest_by_name(movie_details["title"].values[0])
+    # if len(movie_details["title"].values) == 0:
+    #     continue
+    # other_movie_details = search_in_ml_latest_by_name(movie_details["title"].values[0])
     # print(other_movie_details)
-    if len(other_movie_details["movieId"].values) > 0:
-        filtered_recs.append(other_movie_details["movieId"].values[0])
-        recs_dict[other_movie_details["movieId"].values[0]] = movie_details["title"].values[0]
+    # if len(other_movie_details["movieId"].values) > 0:
+    filtered_recs.append(movie_details["movieId"].values[0])
+    recs_dict[movie_details["movieId"].values[0]] = movie_details["title"].values[0]
 
 # print("_",city,"_")
 # print(recs_dict)
 if mr:
     example_dict = mr.filter_dataframe(locations_csv, filtered_recs)
 
-# print(example_dict)
+# print("whole",len(example_dict))
 
 geocoded_data = []
 for item in example_dict:
@@ -170,10 +176,10 @@ for item in example_dict:
 # print(mr.filter_dataframe(locations_csv, filtered_recs, city))
 # print(filter_based_on_distance(example_dict, city))
 geocoded_data = filter_based_on_distance(example_dict, city)
-
+print("filtered",len(geocoded_data))
 st.title('Results: Recommended Movie Locations')
 # Create Pydeck map
-if geocoded_data:
+if geocoded_data:#geocoded_data
     initial_view_state = pdk.ViewState(
         latitude=geocoded_data[0]['latitude'],
         longitude=geocoded_data[0]['longitude'],
@@ -205,15 +211,18 @@ if geocoded_data:
         }
         for data in geocoded_data
     ]
+    # print("routing",len(data))
 
     deck_layers = []
+    city_lat, city_lon = get_lat_lon(city)
 
     formatted_locations = fromat_loctions_for_graphhopper(data)
-    available_route, routes_dataset = request_routes_for_locations(formatted_locations)
+    available_route, routes_dataset = request_routes_for_locations(formatted_locations, city_lon, city_lat)
     # print( available_route)
-    # print(routes_dataset)
+    # print("got here",len(routes_dataset))
 
     if available_route:
+        # routes_dataset[0:5]
         path_layer = pdk.Layer(
             "PathLayer",
             data=routes_dataset,
@@ -279,9 +288,9 @@ if geocoded_data:
                         <p style="color:grey;">In {recs_dict[item["movieId"]]},  {item["tags"]}</p>
                         ''', unsafe_allow_html=True)
                         # st.write("In " + recs_dict[item["movieId"]] + ", ", item["tags"])                        
-                        # if st.button("Quiz on this place!", key=ind):
-                        #     st.session_state["questionnaire_location"] = item["address"]
-                        #     st.switch_page("pages/stepExtra.py")
+                        if st.button("Quiz on this place!", key=ind):
+                            st.session_state["questionnaire_location"] = item["address"]
+                            st.switch_page("pages/stepExtra.py")
                 ind = ind+1
                     # st.write(item["tags"])
 
@@ -324,6 +333,108 @@ if geocoded_data:
 
 else:
     st.write("No geocoded data available.")
+#     GPT_locations = get_recommendations_from_GPT(city,recs_names)
+    
+    
+
+
+#     def encode_image(image_path):
+#         with open(image_path, "rb") as image_file:
+#             return base64.b64encode(image_file.read()).decode()
+
+
+#     icon_image_base64 = encode_image("src/data/img/location-pin.png")
+#     icon_image_data = f"data:image/png;base64,{icon_image_base64}"
+#     icon_data = {
+#         "url": icon_image_data,
+#         "width": 128,
+#         "height": 128,
+#         "anchorY": 128,
+#     }
+#     # print("routing",len(data))
+#     data = [
+#         {
+#             "coordinates": [data['longitude_latitude'].split(", ")[0], data['longitude_latitude'].split(", ")[1]],
+#             "tags": data['locationRef'],
+#             "icon_data": icon_data,
+#             "movieId": ind,
+#             "title": data['movie_name'],
+#             "address": data["location"]+", "+data['area_street']+", "+data['city_country']
+#         }
+#         for ind, data in enumerate(GPT_locations['movies'])
+#     ]
+#     initial_view_state = pdk.ViewState(
+#         latitude=data[0]['coordinates'][1],
+#         longitude=data[0]['coordinates'][0],
+#         zoom=11,
+#         pitch=0,
+#         height=350, width=600
+#     )
+
+#     deck_layers = []
+#     city_lat, city_lon = get_lat_lon(city)
+
+#     formatted_locations = fromat_loctions_for_graphhopper(data)
+#     available_route, routes_dataset = request_routes_for_locations(formatted_locations, city_lon, city_lat)
+#     # print( available_route)
+#     # print("got here",len(routes_dataset))
+
+#     if available_route:
+#         # routes_dataset[0:5]
+#         path_layer = pdk.Layer(
+#             "PathLayer",
+#             data=routes_dataset,
+#             get_path='path',
+#             # get_width=100,
+#             # get_color='[231, 77, 62, 200]',
+#             get_color='[0, 194, 255, 200]',
+#             pickable=True,
+#             auto_highlight=True,
+#             width_min_pixels=3,
+#         )
+#         deck_layers.append(path_layer)
+
+#     icon_layer = pdk.Layer(
+#         type="IconLayer",
+#         data=data,
+#         get_icon="icon_data",
+#         get_size=4,
+#         size_scale=15,
+#         get_position="coordinates",
+#         pickable=True,
+#     )
+
+#     deck_layers.append(icon_layer)
+
+#     # print( deck_layers)
+
+#     tooltip = {"html": "{tags}"}
+
+#     r = pdk.Deck(
+#         map_style='mapbox://styles/mapbox/streets-v11',
+#         initial_view_state=initial_view_state,
+#         layers=deck_layers,
+#         tooltip=tooltip,
+#     )
+#     # col1, col2 = st.columns([2, 2])
+#     # with col1:
+#         # map
+#         #places_map = st.pydeck_chart(r, use_container_width=True)
+#     places_map = st.pydeck_chart(r)
+# {{
+#         "movie_name": "Movie Name",
+#         "year": "Year",
+#         "genres": ["Genre1", "Genre2"],
+#         "main_actors": ["Actor1", "Actor2"],
+#         "imdb_url": "https://www.imdb.com/title/ttXXXXXXX/",
+#         "city_country": "City, Country",
+#         "area_street": "Area/Street",
+#         "location": "Specific Location",
+#         "longitude_latitude": "Longitude, Latitude",
+#         "movie_description": "Description",
+#         "locationRef": "Description"
+#     }}
+    
 
 st.subheader("Not satisfied with the results?", divider="rainbow")
 col1, col2 = st.columns(2)
