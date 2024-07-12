@@ -11,3 +11,4 @@ regex
 keras
 tensorflow
 scikit-learn
+matplotlib
