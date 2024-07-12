@@ -34,5 +34,6 @@ if 'questionnaire_location' in st.session_state:
     with st.spinner('Wait for generating quiz...'):
         response = create_questionnaire(st.session_state['questionnaire_location'])
 
-    st.title(f"Quiz time! How much do you know about {st.session_state['questionnaire_location']}?")
+    st.title("Quiz time!")
+    st.header(f" How much do you know about {st.session_state['questionnaire_location']}?")
     create_quiz(response)

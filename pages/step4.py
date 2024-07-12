@@ -14,7 +14,7 @@ from src.scripts.movieLensUtils import load_locations_csv, search_in_ml_latest_b
 from src.scripts.recommender import MovieRecommender
 from src.scripts.geocodingUtils import fromat_loctions_for_graphhopper, request_routes_for_locations, haversine
 
-distance_radius = 50
+distance_radius = 75
 
 def resize_image(url, size=(500, 550)):
     response = requests.get(url)
@@ -82,7 +82,9 @@ def filter_based_on_distance(locations_array, city):
                 "latitude": lat,
                 "longitude": lon,
                 "tags": item['tags'],
-                "movieId": item['movieId']
+                "movieId": item['movieId'],
+                "address":item['address'],
+                "imgUrl":item['imgUrl'],                
             })
     return geocoded_data
 
@@ -167,6 +169,7 @@ for item in example_dict:
 # print("compare datas now for ", city)
 # print(mr.filter_dataframe(locations_csv, filtered_recs, city))
 # print(filter_based_on_distance(example_dict, city))
+geocoded_data = filter_based_on_distance(example_dict, city)
 
 st.title('Results: Recommended Movie Locations')
 # Create Pydeck map
@@ -246,7 +249,7 @@ if geocoded_data:
         layers=deck_layers,
         tooltip=tooltip,
     )
-    col1, col2 = st.columns([2, 1])
+    col1, col2 = st.columns([2, 2])
     with col1:
         # map
         #places_map = st.pydeck_chart(r, use_container_width=True)
@@ -256,16 +259,30 @@ if geocoded_data:
         # address information
         with st.container(height=350, border=True):
             ind = 0
-            for item in example_dict:
+            for item in geocoded_data:
                 with st.container(border=True):
-                    st.write(item["address"])
-                    st.image(resize_image(item['imgUrl'], (200, 120)))
-                    st.write("In " + recs_dict[item["movieId"]] + ", ", item["tags"])
-                                    #to switch to the quiz page
-                    if st.button("Quiz on this place!", key=ind):
-                        st.session_state["questionnaire_location"] = item["address"]
-                        st.switch_page("pages/stepExtra.py")
-                    ind = ind+1
+                    img_col, name_col = st.columns([1,3])
+                    with img_col:
+                        st.image(resize_image(item['imgUrl'], (200, 120)))          
+                    with name_col:
+                        address_split = item["address"].split(",")
+                        if len(address_split) > 2:
+                            new_address = ",".join(address_split[0:2])
+                        else:
+                            new_address = item["address"]
+                        
+                        # st.subheader(new_address)
+                        # st.image(resize_image(item['imgUrl'], (200, 120)))
+
+                        st.markdown(f'''
+                        <h4>{new_address}</h4>
+                        <p style="color:grey;">In {recs_dict[item["movieId"]]},  {item["tags"]}</p>
+                        ''', unsafe_allow_html=True)
+                        # st.write("In " + recs_dict[item["movieId"]] + ", ", item["tags"])                        
+                        # if st.button("Quiz on this place!", key=ind):
+                        #     st.session_state["questionnaire_location"] = item["address"]
+                        #     st.switch_page("pages/stepExtra.py")
+                ind = ind+1
                     # st.write(item["tags"])
 
     heading1, heading2 = st.columns([5, 1])

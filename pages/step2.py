@@ -8,13 +8,14 @@ import time
 
 from src.scripts.recommender import MovieRecommender
 
-# from src.scripts.NNrecommender import provide_recommendations_for
+from src.scripts.NNrecommender import provide_recommendations_for
 
 from src.scripts.movieLensUtils import search_in_ml_latest_by_name, load_links_data, search_in_ml_hundred_by_id, create_X, give_me_data, give_me_n_cold_start_movies
 
 st.set_page_config(initial_sidebar_state="collapsed", layout="wide")
 
-movie_id_list = [x for x in give_me_n_cold_start_movies(5) if x not in [50, 181, 121] ]
+# movie_id_list = [x for x in give_me_n_cold_start_movies(5) if x not in [50, 181, 121] ]
+movie_id_list = [1,2,3]
 
 # these 3 movies are not in ml-latest dataset, so have removed from cold start list, should fix
 # movies are Star wars, return of the jedi, independence day
@@ -70,18 +71,18 @@ def next_image():
     st.session_state.idx += 1
 
 def get_imdbID_by_movieId(movie_id):
-    movie_details = search_in_ml_hundred_by_id(movie_id)
+    # movie_details = search_in_ml_hundred_by_id(movie_id)
     # print(movie_details["title"].values[0])
-    other_movie_details = search_in_ml_latest_by_name(movie_details["title"].values[0])
+    # other_movie_details = search_in_ml_latest_by_name(movie_details["title"].values[0])
     # print(other_movie_details)
-    if len(other_movie_details["movieId"].values) == 0:
-        print("isssue with ", movie_details["title"].values[0])
-        return None
-    other_movie_id = other_movie_details["movieId"].values[0]
+    # if len(other_movie_details["movieId"].values) == 0:
+    #     print("isssue with ", movie_details["title"].values[0])
+    #     return None
+    # other_movie_id = other_movie_details["movieId"].values[0]
     # print(other_movie_id)
     links_data = load_links_data()
     other_movie_id = str(other_movie_id)
-    imdbId = links_data[links_data['movieId'] == other_movie_id]['imdbId']
+    imdbId = links_data[links_data['movieId'] == movie_id]['imdbId']
     # print(movie_id, "imdb le lo", imdbId.values[0])
     return imdbId.values[0]
 
@@ -127,19 +128,19 @@ def calculate_recommendations_from_NN():
     # data, movie_titles = give_me_data()
     # df = data.iloc[:, :3]
     # df = df.rename(columns={df.columns[1]: 'movie_id'})
-    # # X, user_mapper, movie_mapper, user_inv_mapper, movie_inv_mapper = create_X(df)    
-    # # mr = MovieRecommender(X, movie_titles ,movie_mapper, movie_inv_mapper) # TODO: from here!!
-    # # st.session_state['mr_object'] = mr
-    # # print(type(X), type(user_mapper), type(user_inv_mapper), type(movie_mapper), type(movie_inv_mapper))
-    # recommended_movie_ids = provide_recommendations_for(st.session_state['likes'])
-    # # print(recommended_movies_names)
-    # # html_content = f"""
-    # # <div style="max-width: 600px; max-height: 350px; overflow-x: hidden; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
-    # # {recommended_movies_names}
-    # # """
-    # st.session_state['recs'] = recommended_movie_ids
-    # print(recommended_movie_ids)
-    # st.session_state['recs_names'] = recommended_movies_names
+    # X, user_mapper, movie_mapper, user_inv_mapper, movie_inv_mapper = create_X(df)    
+    # mr = MovieRecommender(X, movie_titles ,movie_mapper, movie_inv_mapper) # TODO: from here!!
+    # st.session_state['mr_object'] = mr
+    # print(type(X), type(user_mapper), type(user_inv_mapper), type(movie_mapper), type(movie_inv_mapper))
+    recommended_movie_ids = provide_recommendations_for(st.session_state['likes'])
+    # print(recommended_movies_names)
+    # html_content = f"""
+    # <div style="max-width: 600px; max-height: 350px; overflow-x: hidden; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
+    # {recommended_movies_names}
+    # """
+    st.session_state['recs'] = recommended_movie_ids
+    print(recommended_movie_ids)
+    st.session_state['recs_names'] = ["",'','','']#recommended_movies_names
     return
 
 

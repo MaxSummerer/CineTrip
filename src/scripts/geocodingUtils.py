@@ -95,7 +95,7 @@ def request_routes_for_locations(graphopper_locations):
             return_data.append(ele_dict)
             ind = ind +1
         
-        print(return_data)
+        # print(return_data)
         # with open('data.json', 'w') as f:
         #     json.dump(return_data, f)
         return True, pd.DataFrame(return_data)
