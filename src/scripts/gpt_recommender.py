@@ -6,13 +6,15 @@ import regex as re
 client = openai.OpenAI(api_key='sk-proj-PxRpylslPas4pRZUSALzT3BlbkFJwJRGg5P63EFGH9Q0FHYa')
 
 
-def create_recommendation(location, genres, interests, perimeter):
+def create_recommendation(location, movies, perimeter=75):
     # Expect a list as input to change to str
-    genres_str = ", ".join(genres)
-    interests_str = ", ".join(interests)
+    movies_str = ", ".join(movies)
 
     prompt = f"""
-    Based on the user's current location '{location}', preferred genres '{genres_str}', and interests '{interests_str}', recommend 8 movie set locations in exactly the city or perimeter of {perimeter} kilometer of the city.
+    Based on the user's current location '{location}', preferred movies: '{movies_str}' 
+    (Use the preffered movies as matchmaker to understand what kind of genres the user likes to recommend similar movies,
+     that are actually shoot in the city stated), 
+    recommend 8 movie set locations in exactly the city or perimeter of {perimeter} kilometer of the city.
     The output should be in JSON format and include the following details:
     - movie name
     - year
@@ -80,10 +82,10 @@ def create_recommendation(location, genres, interests, perimeter):
 
 def main():
     location = "Munich"
-    genres = ["Horror", "Action", "Drama"]
+    movies = ["Inception", "Top Gun", "Mission Impossible"]
     interests = ["Castles", "Restaurants", "High Society"]
-    perimeter = 50
-    recommendation = create_recommendation(location, genres, interests, perimeter)
+    perimeter = 75
+    recommendation = create_recommendation(location, movies, perimeter)
 
     if recommendation:
         # Print the extracted JSON data
