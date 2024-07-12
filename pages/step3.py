@@ -231,9 +231,6 @@ if 'recs' in st.session_state and 'recs_names' in st.session_state:
             elif st.session_state["show"] == -1:
                 st.markdown("Click on Read More to see more details", unsafe_allow_html=True)
 
-                #to switch to the quiz page
-                if st.button("Let's play a game"):
-                    st.switch_page("pages/stepExtra.py")
 
 
      

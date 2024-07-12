@@ -168,7 +168,6 @@ for item in example_dict:
 # print(mr.filter_dataframe(locations_csv, filtered_recs, city))
 # print(filter_based_on_distance(example_dict, city))
 
-geocoded_data = filter_based_on_distance(example_dict, city)
 st.title('Results: Recommended Movie Locations')
 # Create Pydeck map
 if geocoded_data:
@@ -256,12 +255,17 @@ if geocoded_data:
     with col2:
         # address information
         with st.container(height=350, border=True):
+            ind = 0
             for item in example_dict:
                 with st.container(border=True):
                     st.write(item["address"])
                     st.image(resize_image(item['imgUrl'], (200, 120)))
                     st.write("In " + recs_dict[item["movieId"]] + ", ", item["tags"])
-
+                                    #to switch to the quiz page
+                    if st.button("Quiz on this place!", key=ind):
+                        st.session_state["questionnaire_location"] = item["address"]
+                        st.switch_page("pages/stepExtra.py")
+                    ind = ind+1
                     # st.write(item["tags"])
 
     heading1, heading2 = st.columns([5, 1])

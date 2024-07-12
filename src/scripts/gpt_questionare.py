@@ -55,18 +55,16 @@ def create_questionnaire(location):
     return response
 
 
-def main():
-    location = "Eiffel Tower"
+def get_questionnaire_for(location="Garching"):
+    # location = "Eiffel Tower"
     questionnaire = create_questionnaire(location)
 
     if questionnaire:
         # Print the extracted JSON data
         print("Here is your questionnaire in JSON format:")
-        print(questionnaire)
+        return questionnaire
         print(type(questionnaire))
     else:
         print("Failed to create questionnaire")
 
 
-if __name__ == "__main__":
-    main()

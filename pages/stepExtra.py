@@ -30,9 +30,9 @@ def create_quiz(response):
         st.switch_page("pages/step3.py")
 
 
-if st.session_state['country'] and st.session_state['city'] and st.session_state['city'] != "":
+if 'questionnaire_location' in st.session_state:
     with st.spinner('Wait for generating quiz...'):
-        response = create_questionnaire(st.session_state['city'])
+        response = create_questionnaire(st.session_state['questionnaire_location'])
 
-    st.title(f"Quiz time! How much do you know about {st.session_state['city']}?")
+    st.title(f"Quiz time! How much do you know about {st.session_state['questionnaire_location']}?")
     create_quiz(response)

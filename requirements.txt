@@ -7,6 +7,6 @@ pydeck
 altair
 pillow
 openai
-os
-json
 regex
+keras
+tensorflow

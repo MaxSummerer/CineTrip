@@ -87,11 +87,11 @@ def main():
 
     if recommendation:
         # Print the extracted JSON data
-        print("Here is your questionnaire in JSON format:")
+        print("Here are your recommendations in JSON format:")
         print(recommendation)
         print(json.dumps(recommendation, indent=4))
     else:
-        print("Failed to create questionnaire")
+        print("Failed to generate recommendations")
 
 
 if __name__ == "__main__":
