@@ -14,7 +14,7 @@ def create_recommendation(location, movies, perimeter=75):
     Based on the user's current location '{location}', preferred movies: '{movies_str}' 
     (Use the preffered movies as matchmaker to understand what kind of genres the user likes to recommend similar movies,
      that are actually shoot in the city stated), 
-    recommend 8 movie set locations in exactly the city or perimeter of {perimeter} kilometer of the city.
+    recommend 5 movie set locations in exactly the city or perimeter of {perimeter} kilometer of the city.
     The output should be in JSON format and include the following details:
     - movie name
     - year
@@ -24,8 +24,7 @@ def create_recommendation(location, movies, perimeter=75):
     - city/country
     - area/street
     - location
-    - longitude
-    - latitude
+    - longitude/latitude
     - description of the movie
     - Description of the scene that played at the scene
 
@@ -75,8 +74,13 @@ def create_recommendation(location, movies, perimeter=75):
         stop=None,
         temperature=0.7
     )
+    # print(completion.choices[0].message.content)
+    try:
+        response = json.loads(completion.choices[0].message.content)
+    except json.JSONDecodeError as e:
+        response = json.loads(completion.choices[0].message.content +"}]}")
+    # print(len(response.keys()))
 
-    response = json.loads(completion.choices[0].message.content)
 
     return response
 

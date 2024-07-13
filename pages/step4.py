@@ -15,6 +15,8 @@ from src.scripts.recommender import MovieRecommender
 from src.scripts.gpt_recommender import get_recommendations_from_GPT
 from src.scripts.geocodingUtils import fromat_loctions_for_graphhopper, request_routes_for_locations, haversine
 
+st.set_page_config(initial_sidebar_state="collapsed", layout="wide")
+
 distance_radius = 75
 
 def resize_image(url, size=(500, 550)):
@@ -176,7 +178,7 @@ for item in example_dict:
 # print(mr.filter_dataframe(locations_csv, filtered_recs, city))
 # print(filter_based_on_distance(example_dict, city))
 geocoded_data = filter_based_on_distance(example_dict, city)
-print("filtered",len(geocoded_data))
+# print("filtered",len(geocoded_data))
 st.title('Results: Recommended Movie Locations')
 # Create Pydeck map
 if geocoded_data:#geocoded_data
@@ -333,107 +335,144 @@ if geocoded_data:#geocoded_data
 
 else:
     st.write("No geocoded data available.")
-#     GPT_locations = get_recommendations_from_GPT(city,recs_names)
+    recs_names = ["Inception", "Top Gun", "Mission Impossible"]
+
+    GPT_locations = get_recommendations_from_GPT(city,recs_names)
     
     
 
 
-#     def encode_image(image_path):
-#         with open(image_path, "rb") as image_file:
-#             return base64.b64encode(image_file.read()).decode()
+    def encode_image(image_path):
+        with open(image_path, "rb") as image_file:
+            return base64.b64encode(image_file.read()).decode()
 
 
-#     icon_image_base64 = encode_image("src/data/img/location-pin.png")
-#     icon_image_data = f"data:image/png;base64,{icon_image_base64}"
-#     icon_data = {
-#         "url": icon_image_data,
-#         "width": 128,
-#         "height": 128,
-#         "anchorY": 128,
-#     }
-#     # print("routing",len(data))
-#     data = [
-#         {
-#             "coordinates": [data['longitude_latitude'].split(", ")[0], data['longitude_latitude'].split(", ")[1]],
-#             "tags": data['locationRef'],
-#             "icon_data": icon_data,
-#             "movieId": ind,
-#             "title": data['movie_name'],
-#             "address": data["location"]+", "+data['area_street']+", "+data['city_country']
-#         }
-#         for ind, data in enumerate(GPT_locations['movies'])
-#     ]
-#     initial_view_state = pdk.ViewState(
-#         latitude=data[0]['coordinates'][1],
-#         longitude=data[0]['coordinates'][0],
-#         zoom=11,
-#         pitch=0,
-#         height=350, width=600
-#     )
+    icon_image_base64 = encode_image("src/data/img/location-pin.png")
+    icon_image_data = f"data:image/png;base64,{icon_image_base64}"
+    icon_data = {
+        "url": icon_image_data,
+        "width": 128,
+        "height": 128,
+        "anchorY": 128,
+    }
+    # print("routing",len(data))
+    if len(GPT_locations.keys()) == 1:
 
-#     deck_layers = []
-#     city_lat, city_lon = get_lat_lon(city)
+        print("good")
+        data = [
+        {
+            "coordinates": [data['longitude_latitude'].split(", ")[0], data['longitude_latitude'].split(", ")[1]],
+            "tags": data['locationRef'],
+            "icon_data": icon_data,
+            "movieId": ind,
+            "title": data['movie_name'],
+            "address": data["location"]+", "+data['area_street']+", "+data['city_country'],
+            "tags": data['locationRef']
+        }
+        for ind, data in enumerate(GPT_locations[list(GPT_locations.keys())[0]])
+    ]
+    else:
+        data = [
+        {
+            "coordinates": [GPT_locations['longitude_latitude'].split(", ")[0], GPT_locations['longitude_latitude'].split(", ")[1]],
+            "tags": GPT_locations['locationRef'],
+            "icon_data": icon_data,
+            "movieId": 0,
+            "title": GPT_locations['movie_name'],
+            "address": GPT_locations["location"]+", "+GPT_locations['area_street']+", "+GPT_locations['city_country'],
+            "tags": GPT_locations['locationRef']
+        }
+    ]
+    initial_view_state = pdk.ViewState(
+        latitude=data[0]['coordinates'][1],
+        longitude=data[0]['coordinates'][0],
+        zoom=11,
+        pitch=0,
+        height=350, width=600
+    )
 
-#     formatted_locations = fromat_loctions_for_graphhopper(data)
-#     available_route, routes_dataset = request_routes_for_locations(formatted_locations, city_lon, city_lat)
-#     # print( available_route)
-#     # print("got here",len(routes_dataset))
+    deck_layers = []
+    city_lat, city_lon = get_lat_lon(city)
 
-#     if available_route:
-#         # routes_dataset[0:5]
-#         path_layer = pdk.Layer(
-#             "PathLayer",
-#             data=routes_dataset,
-#             get_path='path',
-#             # get_width=100,
-#             # get_color='[231, 77, 62, 200]',
-#             get_color='[0, 194, 255, 200]',
-#             pickable=True,
-#             auto_highlight=True,
-#             width_min_pixels=3,
-#         )
-#         deck_layers.append(path_layer)
+    if False:#len(data) > 1
+        formatted_locations = fromat_loctions_for_graphhopper(data)
+        available_route, routes_dataset = request_routes_for_locations(formatted_locations, city_lon, city_lat)
+        # print( available_route)
+        # print("got here",len(routes_dataset))
 
-#     icon_layer = pdk.Layer(
-#         type="IconLayer",
-#         data=data,
-#         get_icon="icon_data",
-#         get_size=4,
-#         size_scale=15,
-#         get_position="coordinates",
-#         pickable=True,
-#     )
+        if available_route:
+            # routes_dataset[0:5]
+            path_layer = pdk.Layer(
+                "PathLayer",
+                data=routes_dataset,
+                get_path='path',
+                # get_width=100,
+                # get_color='[231, 77, 62, 200]',
+                get_color='[0, 194, 255, 200]',
+                pickable=True,
+                auto_highlight=True,
+                width_min_pixels=3,
+            )
+            deck_layers.append(path_layer)
 
-#     deck_layers.append(icon_layer)
+    icon_layer = pdk.Layer(
+        type="IconLayer",
+        data=data,
+        get_icon="icon_data",
+        get_size=4,
+        size_scale=15,
+        get_position="coordinates",
+        pickable=True,
+    )
 
-#     # print( deck_layers)
+    deck_layers.append(icon_layer)
 
-#     tooltip = {"html": "{tags}"}
+    # print( deck_layers)
 
-#     r = pdk.Deck(
-#         map_style='mapbox://styles/mapbox/streets-v11',
-#         initial_view_state=initial_view_state,
-#         layers=deck_layers,
-#         tooltip=tooltip,
-#     )
-#     # col1, col2 = st.columns([2, 2])
-#     # with col1:
-#         # map
-#         #places_map = st.pydeck_chart(r, use_container_width=True)
-#     places_map = st.pydeck_chart(r)
-# {{
-#         "movie_name": "Movie Name",
-#         "year": "Year",
-#         "genres": ["Genre1", "Genre2"],
-#         "main_actors": ["Actor1", "Actor2"],
-#         "imdb_url": "https://www.imdb.com/title/ttXXXXXXX/",
-#         "city_country": "City, Country",
-#         "area_street": "Area/Street",
-#         "location": "Specific Location",
-#         "longitude_latitude": "Longitude, Latitude",
-#         "movie_description": "Description",
-#         "locationRef": "Description"
-#     }}
+    tooltip = {"html": "{tags}"}
+
+    r = pdk.Deck(
+        map_style='mapbox://styles/mapbox/streets-v11',
+        initial_view_state=initial_view_state,
+        layers=deck_layers,
+        tooltip=tooltip,
+    )
+    GPTcol1, GPTcol2 = st.columns([2, 2])
+    with GPTcol1:
+        # map
+        #places_map = st.pydeck_chart(r, use_container_width=True)
+        places_map_gpt = st.pydeck_chart(r)
+
+    with GPTcol2:
+        # address information
+        with st.container(height=350, border=True):
+            ind = 0
+            for item in data:
+                with st.container(border=True):
+                    img_col, name_col = st.columns([1,3])
+                    # with img_col:
+                        # st.image(resize_image(item['imgUrl'], (200, 120)))          
+                    with name_col:
+                        address_split = item["address"].split(",")
+                        if len(address_split) > 2:
+                            new_address = ",".join(address_split[0:2])
+                        else:
+                            new_address = item["address"]
+                        
+                        # st.subheader(new_address)
+                        # st.image(resize_image(item['imgUrl'], (200, 120)))
+
+                        st.markdown(f'''
+                        <h4>{new_address}</h4>
+                        <p style="color:grey;">In {item["title"]},  {item["tags"]}</p>
+                        ''', unsafe_allow_html=True)
+                        # st.write("In " + recs_dict[item["movieId"]] + ", ", item["tags"])                        
+                        if st.button("Quiz on this place!", key=ind):
+                            st.session_state["questionnaire_location"] = item["address"]
+                            st.switch_page("pages/stepExtra.py")
+                ind = ind+1
+                    # st.write(item["tags"])
+
     
 
 st.subheader("Not satisfied with the results?", divider="rainbow")
