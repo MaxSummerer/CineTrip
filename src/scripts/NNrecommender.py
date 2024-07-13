@@ -84,16 +84,27 @@ def get_movie_embeddings(model, num_movies):
     return movie_weights
 
 # Find similar movies using learned embeddings
-def find_similar_movies_nn(movie_ids, movie_embeddings, movie_id_to_index, movie_index_to_id, k=10):
-    movie_indices = [movie_id_to_index[movie_id] for movie_id in movie_ids]
-    movie_vecs = movie_embeddings[movie_indices]
+def find_similar_movies_nn(movie_ids_like, movie_ids_dislike, movie_embeddings, movie_id_to_index, movie_index_to_id,k=10):
 
-    avg_movie_vec = np.mean(movie_vecs, axis=0)
+    movie_indices_like = [movie_id_to_index[movie_id] for movie_id in movie_ids_like]
+    movie_indices_dislike = [movie_id_to_index[movie_id] for movie_id in movie_ids_dislike]
 
-    similarities = np.dot(movie_embeddings, avg_movie_vec)
+    movie_vecs_like = movie_embeddings[movie_indices_like]
+    movie_vecs_dislike = movie_embeddings[movie_indices_dislike]
+
+    avg_movie_vec_like = np.mean(movie_vecs_like, axis=0)
+
+    avg_movie_vec_dislike = np.mean(movie_vecs_dislike, axis=0)
+
+    adjusted_movie_vec = avg_movie_vec_like - 0.5 * (avg_movie_vec_dislike)
+
+    similarities = np.dot(movie_embeddings, adjusted_movie_vec)
+
     similar_indices = np.argsort(similarities)[::-1]
 
-    similar_movie_ids = [movie_index_to_id[idx] for idx in similar_indices if idx not in movie_indices][:k]
+    similar_movie_ids = [movie_index_to_id[idx] for idx in similar_indices if
+                         idx not in movie_indices_like and idx not in movie_indices_dislike][:k]
+
     return similar_movie_ids
 
 
