@@ -269,5 +269,5 @@ def search_in_ml_latest_by_id(movie_id):
     return df[df["movieId"] == str(movie_id)]
 
 def give_me_n_cold_start_movies(n=15):
-    df = pd.read_csv(ML_HUNDRED_CLEANED_PATH+"cold_start_movies.csv")
+    df = pd.read_csv(DATA_FOLDER_PATH+"cold_start_movies.csv")
     return df.head(n)["movieId"].values
