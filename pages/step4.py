@@ -301,30 +301,31 @@ if geocoded_data:#geocoded_data
     with heading1:
         st.subheader("Movies you selected!", divider='rainbow')
 
-    len_rows = len(filtered_recs) // 4
-    actual_cut = len(filtered_recs) / 4
-    item_left = range(len_rows * 4, len(filtered_recs))
+        movies_per_row = 5
+    len_rows = len(filtered_recs) // movies_per_row
+    actual_cut = len(filtered_recs) / movies_per_row
+    item_left = range(len_rows * movies_per_row, len(filtered_recs))
     if len_rows == actual_cut:
         for row in range(len_rows):
-            carousal_cols = st.columns([1, 1, 1, 1])
-            for i in range(4):
+            carousal_cols = st.columns([1] * movies_per_row)# change
+            for i in range(movies_per_row):
                 with carousal_cols[i]:
-                    item = row * 4 + i
+                    item = row * movies_per_row + i
                     with st.container(height=320, border=True):
                         if load_image(filtered_recs[item]):
                             st.image(load_image(filtered_recs[item]))
                         st.write(recs_dict[filtered_recs[item]])
     else:
         for row in range(len_rows):
-            carousal_cols = st.columns([1, 1, 1, 1])
-            for i in range(4):
+            carousal_cols = st.columns([1] * movies_per_row)# change
+            for i in range(movies_per_row):
                 with carousal_cols[i]:
-                    item = row * 4 + i
+                    item = row * movies_per_row + i
                     with st.container(height=320, border=True):
                         if load_image(filtered_recs[item]):
                             st.image(load_image(filtered_recs[item]))
                         st.write(recs_dict[filtered_recs[item]])
-        last_row = st.columns([1, 1, 1, 1])
+        last_row = st.columns([1] * movies_per_row)# change
         for i in range(len(item_left)):
             with last_row[i]:
                 item = item_left[i]
