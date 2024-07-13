@@ -334,8 +334,8 @@ if geocoded_data:#geocoded_data
                     st.write(recs_dict[filtered_recs[item]])
 
 else:
-    st.write("No geocoded data available.")
-    recs_names = ["Inception", "Top Gun", "Mission Impossible"]
+    st.write("GPT reccomendations available.")
+    # recs_names = ["Inception", "Top Gun", "Mission Impossible"]
 
     GPT_locations = get_recommendations_from_GPT(city,recs_names)
     
