@@ -75,9 +75,9 @@ class MovieRecommender:
         '''
         # Filter based on movie_ids
         filtered_df = df[df['movieId'].isin(movie_ids)]
-        print("kll")
+        # print("kll")
         
-        print(filtered_df)
+        # print(filtered_df)
 
         # location_filtered_df = []
 
