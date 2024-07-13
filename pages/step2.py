@@ -133,7 +133,7 @@ def calculate_recommendations_from_NN():
     # mr = MovieRecommender(X, movie_titles ,movie_mapper, movie_inv_mapper) # TODO: from here!!
     # st.session_state['mr_object'] = mr
     # print(type(X), type(user_mapper), type(user_inv_mapper), type(movie_mapper), type(movie_inv_mapper))
-    recommended_movie_ids = provide_recommendations_for(st.session_state['likes'])
+    recommended_movie_ids = provide_recommendations_for(st.session_state['likes'], st.session_state['dislikes'])
     recommended_movies_names = []
     for i in recommended_movie_ids:
         movie_details = search_in_ml_latest_by_id(i)

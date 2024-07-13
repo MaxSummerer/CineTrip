@@ -108,7 +108,7 @@ def find_similar_movies_nn(movie_ids_like, movie_ids_dislike, movie_embeddings, 
     return similar_movie_ids
 
 
-def provide_recommendations_for(movie_ids = [1, 2, 3]):
+def provide_recommendations_for(movie_ids , disliked_movies):
     ratings, movies = load_data()
     ratings, num_users, num_movies, user_id_to_index, movie_id_to_index = preprocess_data(ratings, movies)
     # print("1")
@@ -126,7 +126,7 @@ def provide_recommendations_for(movie_ids = [1, 2, 3]):
     # Example movie_ids for which to find similar movies
     # movie_ids = [1, 2, 3]  # Example movie IDs liked by the user
 
-    similar_movie_ids = find_similar_movies_nn(movie_ids, movie_embeddings, movie_id_to_index, movie_index_to_id)
+    similar_movie_ids = find_similar_movies_nn(movie_ids, disliked_movies, movie_embeddings, movie_id_to_index, movie_index_to_id)
     # print(f"Similar movies: {similar_movie_ids}")
 
     return similar_movie_ids
