@@ -280,8 +280,9 @@ def give_me_n_cold_start_movies(n=15):
     return df.head(n)["movieId"].values
 
 def filter_recommendations_based_on_locations_dataset(movies):
+    str_movies = map(str,movies)
     df = pd.read_csv(DATA_FOLDER_PATH+"movies_added.csv", dtype = {'movieId': str})
-    return df[df["movieId"].isin(movies)]['movieId'].values
+    return df[df["movieId"].isin(str_movies)]['movieId'].values
 
 # a= filter_recommendations_based_on_locations_dataset(
 #     ['2572', '92529', '158559', '54286', '79132', '8665', '6934', '6365', '33794', '48780']
