@@ -2,9 +2,10 @@ import streamlit as st
 import json
 import requests
 from opencage.geocoder import OpenCageGeocode
+import time
 
 CITIES_FOLDER_PATH = "src/data/cities/"
-
+city_list=[]
 
 # get city and country name from json files
 def get_country_fullname():
@@ -81,7 +82,7 @@ def clear_session_state():
 
 # given address string, output lat and lon
 def get_lat_lon(address):
-    api_key = '8ff0d285a2074146b399833d726fc5af'
+    api_key = '1d8774227563448b981d6712113b457e'
     geocoder = OpenCageGeocode(api_key)
     result = geocoder.geocode(address)
     if result and len(result):
@@ -93,61 +94,76 @@ def get_lat_lon(address):
         return 48.2488721, 11.6532477
 
 
+def on_click(city, country):
+
+    st.session_state['country'] = country
+    st.session_state['city'] = city
+    st.session_state['country_index'] = country_list.index(st.session_state['country'])
+    st.session_state['city_index'] = cities[st.session_state['country']].index(st.session_state['city'])
+    print("on click changed ", st.session_state['country_index'], st.session_state['country'])
+
+
+def on_click_auto_location():
+    ip = get_ip()
+    location_data = get_location(ip)
+    city = location_data.get('city', 'Unknown City')
+    country_code = location_data.get('country', 'Unknown Country')
+    country_data = get_country_fullname()
+    country_full_name = country_data[country_code]
+    st.session_state['country'] = country_full_name.strip()
+    st.session_state['city'] = city.strip()
+    st.session_state['country_index'] = country_list.index(st.session_state['country'])
+    st.session_state['city_index'] = cities[st.session_state['country']].index(st.session_state['city'])
+
+
 if 'city' not in st.session_state:
     st.session_state['city'] = ""
 
 if 'country' not in st.session_state:
     st.session_state['country'] = ""
 
+if 'city_index' not in st.session_state:
+    st.session_state['city_index'] = 0
+
+if 'country_index' not in st.session_state:
+    st.session_state['country_index'] = 0
+
 country_list, cities = get_city_name()
 
-col1, col2 = st.columns([5, 1])
+col1, col2 = st.columns([2, 1])
 
 with col1:
     st.title("Step 1: choose your location")
+
+        # Dropdown for countries
+    selected_country = st.selectbox("🌎Select a Country", country_list, index=st.session_state['country_index'])
+
+    # Dropdown for cities
+    if selected_country:
+
+        print("after ", selected_country)
+        #
+        city_list = cities[selected_country]
+
+        if st.session_state['country'] != selected_country:
+            st.session_state['city_index']=0
+
+        selected_city = st.selectbox("🏰Select a City", city_list, index=st.session_state['city_index'])
+
+
+    latitude, longitude = get_lat_lon(selected_city + ", " + selected_country)
+
+
 with col2:
-    if st.button('📍Your position'):
-        ip = get_ip()
-        location_data = get_location(ip)
-        city = location_data.get('city', 'Unknown City')
-        country_code = location_data.get('country', 'Unknown Country')
-        country_data = get_country_fullname()
-        country_full_name = country_data[country_code]
-        st.session_state['city'] = city.strip()
-        st.session_state['country'] = country_full_name.strip()
+    st.button('📍Your position', on_click=on_click_auto_location)
 
-country_index = 0
-city_index = 0
-country_full_name = ""
-
-if st.session_state['country'] and st.session_state['city'] and st.session_state['country'] != "":
-    try:
-        # country_data = get_country_fullname()
-        # country_full_name = country_data[st.session_state['country']]
-        # st.session_state['country'] = country_full_name
-        country_index = country_list.index(st.session_state['country'])
-    except ValueError:
-        country_index = 0
-
-# Dropdown for countries
-selected_country = st.selectbox("🌎Select a Country", country_list, index=country_index)
-# Dropdown for cities
-if selected_country:
-
-    city_list = cities[selected_country]
-    try:
-        if st.session_state['country'] and st.session_state['city'] and st.session_state['city'] != "":
-            city_index = cities[st.session_state['country']].index(st.session_state['city'])
-    except ValueError:
-        city_index = 0
-
-    selected_city = st.selectbox("🏰Select a City", city_list, index=city_index)
-else:
-    selected_city = st.selectbox("🏰Select a City", [])
-
-latitude, longitude = get_lat_lon(selected_city + ", " + selected_country)
-st.session_state['city'] = selected_city
-st.session_state['country'] = selected_country
+    with st.container():
+        st.subheader("Popular locations")
+        st.button("London", on_click=on_click, args=["London", "United Kingdom"])
+        st.button("Salzburg", on_click=on_click, args=["Salzburg", "Austria"])
+        st.button("Paris", on_click=on_click, args=["Paris", "France"])
+        st.button("Los Angeles", on_click=on_click, args=["Los Angeles", "United States"])
+        st.button("New York City", on_click=on_click, args=["New York City", "United States"])
 
 st.write(f"""
         You selected: {selected_city} in {selected_country}
@@ -155,7 +171,6 @@ st.write(f"""
         """)
 # with col2:
 if st.button("Next"):
-    # st.session_state['city'] = selected_city
-    # st.session_state['country'] = selected_country
-
+    st.session_state['city'] = selected_city
+    st.session_state['country'] = selected_country
     st.switch_page("pages/step2.py")

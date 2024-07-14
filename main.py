@@ -64,6 +64,14 @@ with col23:
         st.markdown("""
         **About Team 7 CineTrip**
         
+        Team members:
+        
+        Maanav Khungar
+        
+        Maximilian Summerer
+        
+        Lan Wang
+        
         """)
 
 if st.button("✨Let's start!"):

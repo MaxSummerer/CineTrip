@@ -61,7 +61,7 @@ def get_movie_info_by_movieID(movie_id, api_key="9dc353f6"):
 
 
 def get_lat_lon(address):
-    api_key = '8ff0d285a2074146b399833d726fc5af'
+    api_key = '1d8774227563448b981d6712113b457e'
     geocoder = OpenCageGeocode(api_key)
     result = geocoder.geocode(address)
     if result and len(result):
@@ -78,6 +78,7 @@ def filter_based_on_distance(locations_array, city):
     city_lat, city_lon = get_lat_lon(city)
     # print(city, city_lat, city_lon)
     for item in locations_array:
+        print("address ",item['address'])
         lat, lon = get_lat_lon(item['address'])
         distance = haversine(lat, lon, city_lat, city_lon)
         if distance < distance_radius:
@@ -160,6 +161,7 @@ for i in recs:
 # print(recs_dict)
 if mr:
     example_dict = mr.filter_dataframe(locations_csv, filtered_recs)
+    print("dict ",example_dict)
 
 # print("whole",len(example_dict))
 
@@ -219,25 +221,30 @@ if geocoded_data:#geocoded_data
     city_lat, city_lon = get_lat_lon(city)
 
     formatted_locations = fromat_loctions_for_graphhopper(data)
-    available_route, routes_dataset = request_routes_for_locations(formatted_locations, city_lon, city_lat)
+    try:
+        available_route, routes_dataset = request_routes_for_locations(formatted_locations, city_lon, city_lat)
+
+
+    #routes_dataset = []
     # print( available_route)
     # print("got here",len(routes_dataset))
 
-    if available_route:
-        # routes_dataset[0:5]
-        path_layer = pdk.Layer(
-            "PathLayer",
-            data=routes_dataset,
-            get_path='path',
-            # get_width=100,
-            # get_color='[231, 77, 62, 200]',
-            get_color='[0, 194, 255, 200]',
-            pickable=True,
-            auto_highlight=True,
-            width_min_pixels=3,
-        )
-        deck_layers.append(path_layer)
-
+        if available_route:
+            # routes_dataset[0:5]
+            path_layer = pdk.Layer(
+                "PathLayer",
+                data=routes_dataset,
+                get_path='path',
+                # get_width=100,
+                # get_color='[231, 77, 62, 200]',
+                get_color='[0, 194, 255, 200]',
+                pickable=True,
+                auto_highlight=True,
+                width_min_pixels=3,
+            )
+            deck_layers.append(path_layer)
+    except Exception as e:
+        print("create route failed. Continue")
     icon_layer = pdk.Layer(
         type="IconLayer",
         data=data,
