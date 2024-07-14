@@ -12,7 +12,7 @@ links_data = load_links_data()
 
 g_tot = 0
 ds_df = pd.DataFrame(columns=[ 'movieId', 'imgUrl','imgMovieLocation','imgRealLocation'])
-movies_df = pd.DataFrame(columns=[ 'title', 'url','count_in_TMDB'])
+movies_df = pd.DataFrame(columns=[ 'title', 'url','count_in_TMDB', 'movieId'])
 
 for letter in string.ascii_lowercase:
     # if letter == 'e':
