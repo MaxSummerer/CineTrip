@@ -10,7 +10,7 @@ from src.scripts.recommender import MovieRecommender
 
 from src.scripts.NNrecommender import provide_recommendations_for
 
-from src.scripts.movieLensUtils import search_in_ml_latest_by_name, load_links_data, search_in_ml_hundred_by_id, create_X, give_me_data, give_me_n_cold_start_movies, search_in_ml_latest_by_id
+from src.scripts.movieLensUtils import search_in_ml_latest_by_name, load_links_data, search_in_ml_hundred_by_id, create_X, give_me_data, give_me_n_cold_start_movies, search_in_ml_latest_by_id, filter_recommendations_based_on_locations_dataset
 
 st.set_page_config(initial_sidebar_state="collapsed", layout="wide")
 
@@ -135,6 +135,7 @@ def calculate_recommendations_from_NN():
     # print(type(X), type(user_mapper), type(user_inv_mapper), type(movie_mapper), type(movie_inv_mapper))
     recommended_movie_ids = provide_recommendations_for(st.session_state['likes'], st.session_state['dislikes'])
     recommended_movies_names = []
+    recommended_movie_ids = filter_recommendations_based_on_locations_dataset(recommended_movie_ids)
     for i in recommended_movie_ids:
         movie_details = search_in_ml_latest_by_id(i)
         if len(movie_details["title"].values) == 0:
@@ -147,6 +148,7 @@ def calculate_recommendations_from_NN():
     # <div style="max-width: 600px; max-height: 350px; overflow-x: hidden; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
     # {recommended_movies_names}
     # """
+    
     st.session_state['recs'] = recommended_movie_ids
     print(recommended_movie_ids)
     st.session_state['recs_names'] = recommended_movies_names#["",'','','']#

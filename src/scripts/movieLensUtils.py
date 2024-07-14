@@ -95,26 +95,32 @@ def dataframe_with_locations_and_TMDBid(dict_ele, movies_df, links_data):
     
     TMDB_deets = json.loads(get_movie_deets_from_TMDB(movie_name))
     # print(TMDB_deets)
-    movie_df = pd.DataFrame({'title':[movie_name],'url':[dict_ele['url']],'count_in_TMDB':[TMDB_deets['total_results']]})
-    movies_df = pd.concat([movies_df, movie_df], ignore_index=True)
+    movie_df = pd.DataFrame({'title':[movie_name],'url':[dict_ele['url']],'count_in_TMDB':[TMDB_deets['total_results']], 'movieId': ['']})
+    
     if movie_df.count_in_TMDB.values == 0:
+        movies_df = pd.concat([movies_df, movie_df], ignore_index=True)
         return None, movies_df
     try:
         tmdbId = TMDB_deets['results'][0]['id']
         
         movieId = find_movie_lens_id_fromTMDB_id(tmdbId, links_data)
         
+        
         #TODO: add movieId as col, fix the df creation command and run the script for all letters
         if len(movieId) == 0:
             raise Exception("movieId not found")
+        movie_df.movieId = [movieId.values[0]]
         
         df = pd.DataFrame(data=dict_ele)
         df.rename(columns={'name':"movieId"}, inplace=True)
         df.movieId = movieId.values[0]
         df.drop('url', axis=1, inplace=True)
+        movies_df = pd.concat([movies_df, movie_df], ignore_index=True)
         return df, movies_df
     except Exception as e:
         print(movie_name, e)
+        # raise e
+        movies_df = pd.concat([movies_df, movie_df], ignore_index=True)
         return None, movies_df
 
 
@@ -124,7 +130,8 @@ def load_links_data():
 
 
 def find_movie_lens_id_fromTMDB_id(TMDB_id, links_data):
-    TMDB_id = str(TMDB_id) + ".0"
+    TMDB_id = str(TMDB_id)
+    # print(links_data, type(TMDB_id))
     return links_data[links_data['tmdbId'] == TMDB_id]['movieId']
     
 
@@ -271,3 +278,12 @@ def search_in_ml_latest_by_id(movie_id):
 def give_me_n_cold_start_movies(n=15):
     df = pd.read_csv(DATA_FOLDER_PATH+"cold_start_movies.csv")
     return df.head(n)["movieId"].values
+
+def filter_recommendations_based_on_locations_dataset(movies):
+    df = pd.read_csv(DATA_FOLDER_PATH+"movies_added.csv", dtype = {'movieId': str})
+    return df[df["movieId"].isin(movies)]['movieId'].values
+
+# a= filter_recommendations_based_on_locations_dataset(
+#     ['2572', '92529', '158559', '54286', '79132', '8665', '6934', '6365', '33794', '48780']
+# )
+# print(a)
