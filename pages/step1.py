@@ -130,7 +130,7 @@ if st.session_state['country'] and st.session_state['city'] and st.session_state
         country_index = 0
 
 # Dropdown for countries
-selected_country = st.selectbox("🌎Select a Country", country_list, index=country_index, on_change=clear_session_state)
+selected_country = st.selectbox("🌎Select a Country", country_list, index=country_index)
 # Dropdown for cities
 if selected_country:
 
@@ -141,9 +141,9 @@ if selected_country:
     except ValueError:
         city_index = 0
 
-    selected_city = st.selectbox("🏰Select a City", city_list, index=city_index, on_change=clear_session_state)
+    selected_city = st.selectbox("🏰Select a City", city_list, index=city_index)
 else:
-    selected_city = st.selectbox("🏰Select a City", [], on_change=clear_session_state)
+    selected_city = st.selectbox("🏰Select a City", [])
 
 latitude, longitude = get_lat_lon(selected_city + ", " + selected_country)
 st.session_state['city'] = selected_city
