@@ -117,7 +117,7 @@ def provide_recommendations_for(movie_ids , disliked_movies):
     # print("2")
 
     # model = build_model(num_users, num_movies)
-    model = load_model('best_model_try2.h5', compile=False)
+    model = load_model('src/models/best_model_try2.h5', compile=False)
     print("3")
     # history = train_model(model, ratings)
 
