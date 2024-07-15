@@ -2,11 +2,12 @@ from sklearn.neighbors import NearestNeighbors
 import numpy as np
 
 class MovieRecommender:
-    def __init__(self, X, movie_titles, movie_mapper, movie_inv_mapper):
-        self.X = X.T  # Transpose here once instead of in each call
-        self.movie_titles = movie_titles
-        self.movie_mapper = movie_mapper
-        self.movie_inv_mapper = movie_inv_mapper
+    def __init__(self):
+        # self.X = X.T  # Transpose here once instead of in each call
+        # self.movie_titles = movie_titles
+        # self.movie_mapper = movie_mapper
+        # self.movie_inv_mapper = movie_inv_mapper
+        super()
 
     def find_similar_movies(self, movie_ids, dislikes ,movie_titles, X, movie_mapper, movie_inv_mapper, k, metric='cosine'):
         """

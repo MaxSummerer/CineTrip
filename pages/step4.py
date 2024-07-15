@@ -107,11 +107,11 @@ mr = None
 
 # TODO: change these if blocks for proper navigation
 # if 'mr_object' not in st.session_state:  # change to 'not in' and create new object for mr/ but why tho (see later)
-data, movie_titles = give_me_data()
-df = data.iloc[:, :3]
-df = df.rename(columns={df.columns[1]: 'movie_id'})
-X, user_mapper, movie_mapper, user_inv_mapper, movie_inv_mapper = create_X(df)    
-mr = MovieRecommender(X, movie_titles ,movie_mapper, movie_inv_mapper)
+# data, movie_titles = give_me_data()
+# df = data.iloc[:, :3]
+# df = df.rename(columns={df.columns[1]: 'movie_id'})
+# X, user_mapper, movie_mapper, user_inv_mapper, movie_inv_mapper = create_X(df)    
+mr = MovieRecommender()
 
 if 'city' not in st.session_state and 'country' not in st.session_state:  # go back to step1
     city = 'Chicago'
@@ -160,10 +160,12 @@ for i in recs:
 # print("_",city,"_")
 # print(recs_dict)
 if mr:
-    example_dict = mr.filter_dataframe(locations_csv, filtered_recs)
-    print("dict ",example_dict)
+    example_dict = mr.filter_dataframe(locations_csv, filtered_recs, city)
+    # print("string filter")
+    # print("filtered_str",len(mr.filter_dataframe(locations_csv, filtered_recs, city)))
+    # print("dict ",example_dict)
 
-# print("whole",len(example_dict))
+print("whole",len(example_dict))
 
 geocoded_data = []
 for item in example_dict:
@@ -174,13 +176,15 @@ for item in example_dict:
         "latitude": lat,
         "longitude": lon,
         "tags": item['tags'],
-        "movieId": item['movieId']
+        "movieId": item['movieId'],
+        "imgUrl" : item['imgUrl'],
+        'address': item['address']
     })
 # print("compare datas now for ", city)
 # print(mr.filter_dataframe(locations_csv, filtered_recs, city))
 # print(filter_based_on_distance(example_dict, city))
-geocoded_data = filter_based_on_distance(example_dict, city)
-# print("filtered",len(geocoded_data))
+# geocoded_data = filter_based_on_distance(example_dict, city)
+# print("filtered_coor",len(geocoded_data))
 st.title('Results: Recommended Movie Locations')
 # Create Pydeck map
 if geocoded_data:#geocoded_data
@@ -215,36 +219,11 @@ if geocoded_data:#geocoded_data
         }
         for data in geocoded_data
     ]
-    # print("routing",len(data))
+    print(data)
 
     deck_layers = []
     city_lat, city_lon = get_lat_lon(city)
 
-    formatted_locations = fromat_loctions_for_graphhopper(data)
-    try:
-        available_route, routes_dataset = request_routes_for_locations(formatted_locations, city_lon, city_lat)
-
-
-    #routes_dataset = []
-    # print( available_route)
-    # print("got here",len(routes_dataset))
-
-        if available_route:
-            # routes_dataset[0:5]
-            path_layer = pdk.Layer(
-                "PathLayer",
-                data=routes_dataset,
-                get_path='path',
-                # get_width=100,
-                # get_color='[231, 77, 62, 200]',
-                get_color='[0, 194, 255, 200]',
-                pickable=True,
-                auto_highlight=True,
-                width_min_pixels=3,
-            )
-            deck_layers.append(path_layer)
-    except Exception as e:
-        print("create route failed. Continue")
     icon_layer = pdk.Layer(
         type="IconLayer",
         data=data,
@@ -256,6 +235,31 @@ if geocoded_data:#geocoded_data
     )
 
     deck_layers.append(icon_layer)
+    
+    formatted_locations = fromat_loctions_for_graphhopper(data)
+            # try:
+    available_route, routes_dataset = request_routes_for_locations(formatted_locations[0:5], city_lon, city_lat)
+
+
+    #routes_dataset = []
+    # print( available_route)
+    # print("got here",len(routes_dataset))
+
+    if available_route:
+        # routes_dataset = routes_dataset[0:5]
+        path_layer = pdk.Layer(
+            "PathLayer",
+            data=routes_dataset,
+            get_path='path',
+            # get_width=100,
+            # get_color='[231, 77, 62, 200]',
+            get_color='[0, 194, 255, 200]',
+            pickable=True,
+            auto_highlight=True,
+            width_min_pixels=3,
+        )
+        deck_layers.append(path_layer)
+            # r.update()
 
     # print( deck_layers)
 
@@ -272,6 +276,8 @@ if geocoded_data:#geocoded_data
         # map
         #places_map = st.pydeck_chart(r, use_container_width=True)
         places_map = st.pydeck_chart(r)
+        # if st.button("Give me my route"):
+            
 
     with col2:
         # address information

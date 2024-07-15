@@ -79,29 +79,35 @@ def request_routes_for_locations(graphopper_locations, city_lon, city_lat):
     response = requests.post(URL_GRAPHHOPPER, json=payload, headers=headers, params=GRAPHHOPPER_API_KEY_QUERY)
 
     data = response.json()
+    
+    try:
+        if data['status'] == 'finished':
+            print(data)
+            paths = data['solution']['routes'][0]['points']
+            print(len(paths))
+            ind = 0
+            return_data = []
+            for i in paths:
+                # print(len(i['coordinates']))
+                ele_dict = {}
+                ele_dict['name'] = f"path{ind}"
+                # ele_dict['color'] = "#fec76fff"
+                ele_dict['path'] = i['coordinates']
+                return_data.append(ele_dict)
+                ind = ind +1
 
-    if data['status'] == 'finished':
-        # print(data['solution']['routes'][0]['points'])
-        paths = data['solution']['routes'][0]['points']
-        print(len(paths))
-        ind = 0
-        return_data = []
-        for i in paths:
-            # print(len(i['coordinates']))
-            ele_dict = {}
-            ele_dict['name'] = f"path{ind}"
-            # ele_dict['color'] = "#fec76fff"
-            ele_dict['path'] = i['coordinates']
-            return_data.append(ele_dict)
-            ind = ind +1
-        
-        
-        print("got_routes",len(return_data))
-        # with open('data.json', 'w') as f:
-        #     json.dump(return_data, f)
-        return True, pd.DataFrame(return_data)
-    else:
+            print("got_routes",len(return_data))
+            # with open('data.json', 'w') as f:
+            #     json.dump(return_data, f)
+            return True, pd.DataFrame(return_data)
+        else:
+            return False, None
+    except Exception as e:
+        print(e)
+        print(data)
         return False, None
+        
+        
 
 def haversine(lat1, lon1, lat2, lon2):
     """
