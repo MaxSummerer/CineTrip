@@ -2,5 +2,4 @@
 2. run "streamlit run main.py" in /group07 (root directory)
 3. in the data folder (group07/data) download and place the folder ml-latest 
         (movieLens dataset: https://grouplens.org/datasets/movielens/latest/)
-NOTE: this app will probably break on stress testing (directly jumping to last page, or stuff like that)
       so, test the app under ideal conditions (select city -> press next -> rate movies -> ideally map with locations)  

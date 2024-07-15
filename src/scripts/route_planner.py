@@ -6,7 +6,7 @@ import pydeck as pdk
 url = "https://graphhopper.com/api/1/vrp"
 
 query = {
-  "key": "2a7eb34e-cedd-4215-9f6f-71459f92a694"
+  "key": "<insert your key>"
 }
 
 my_locations = [{'coordinates': [-118.45174, 33.98029], 'tags': " Jerry Maguire's beachfront home/office (undergoing a bit of renovation)", 'movieId': 1393},

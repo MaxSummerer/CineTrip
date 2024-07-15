@@ -82,7 +82,7 @@ def clear_session_state():
 
 # given address string, output lat and lon
 def get_lat_lon(address):
-    api_key = '1d8774227563448b981d6712113b457e'
+    api_key = '<insert your key>'
     geocoder = OpenCageGeocode(api_key)
     result = geocoder.geocode(address)
     if result and len(result):

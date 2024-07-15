@@ -87,7 +87,7 @@ def get_imdbID_by_movieId(movie_id):
     # print(movie_id, "imdb le lo", imdbId.values[0])
     return imdbId.values[0]
 
-def get_movie_info(movie_name, api_key="9dc353f6"):
+def get_movie_info(movie_name, api_key="<insert your key>"):
     url = f"http://www.omdbapi.com/?t={movie_name}&plot=full&apikey={api_key}"
     response = requests.get(url)
     if response.status_code == 200:
@@ -95,7 +95,7 @@ def get_movie_info(movie_name, api_key="9dc353f6"):
     else:
         return {"error"}
 
-def get_movie_info_by_movieID(movie_id, api_key="9dc353f6"):
+def get_movie_info_by_movieID(movie_id, api_key="<insert your key>"):
     movie_imdbID = get_imdbID_by_movieId(movie_id)
     # print(type(movie_imdbID))
     url = f"http://www.omdbapi.com/?i=tt{movie_imdbID}&plot=full&apikey={api_key}"

@@ -47,7 +47,7 @@ def get_imdbID_by_movieId(movie_id):
     return imdbId.values[0]
 
 
-def get_movie_info_by_movieID(movie_id, api_key="9dc353f6"):
+def get_movie_info_by_movieID(movie_id, api_key="<insert your key>"):
     movie_imdbID = get_imdbID_by_movieId(movie_id)
     # print(type(movie_imdbID))
     url = f"http://www.omdbapi.com/?i=tt{movie_imdbID}&plot=full&apikey={api_key}"
@@ -61,7 +61,7 @@ def get_movie_info_by_movieID(movie_id, api_key="9dc353f6"):
 
 
 def get_lat_lon(address):
-    api_key = '1d8774227563448b981d6712113b457e'
+    api_key = '<insert your key>'
     geocoder = OpenCageGeocode(api_key)
     result = geocoder.geocode(address)
     if result and len(result):
