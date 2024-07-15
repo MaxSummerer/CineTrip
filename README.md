@@ -4,7 +4,7 @@ Discover a whole new way to plan your travels with CineTrip, the innovative web-
 refer to insatllation guide
 
 ## project structure
-'''bash
+```
 group07
 ├── MovieRecommender.ipynb 
 ├── README.md
@@ -39,4 +39,4 @@ group07
 │   ├── models
 │   └── scripts
 │       ├── utlity, batch and notebook files used during the whole timeline
-'''
+```
