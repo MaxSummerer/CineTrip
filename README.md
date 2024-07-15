@@ -6,10 +6,7 @@ refer to insatllation guide
 ## project structure
 ```
 group07
-├── MovieRecommender.ipynb 
 ├── README.md
-├── RecommenderNN.ipynb
-├── best_model_try2.h5
 ├── installation guide
 ├── main.py
 ├── pages
@@ -17,26 +14,26 @@ group07
 ├── requirements.txt
 ├── src
 │   ├── README.md
-│   ├── data (hosts all the data used in the application)
-│   │   ├── cities
-│   │   │   ├── cities and countries in JSON format
+│   ├── data                                            # Hosts all the data used in the application
+│   │   ├── cities                                      # cities and countries in JSON format
+│   │   │   ├── ...
 │   │   ├── cold_start_movies.csv
 │   │   ├── dowloads.txt
-│   │   ├── img
-│   │   │   ├── Images being used in the project
-│   │   ├── locations-json
-│   │   │   ├── locations dataset in json files
-│   │   ├── ml-100k
-│   │   │   ├── ML 100k dataset used for initital developent and model exploration
-│   │   ├── ml-100k-cleaned
-│   │   │   ├── files kept for backward compatability
-│   │   ├── ml-latest
-│   │   │   ├── Latest and the biggest MovieLens dataset
+│   │   ├── img                                         # Images being used in the project
+│   │   │   ├── ...
+│   │   ├── locations-json                              # Locations dataset in json files
+│   │   │   ├── ...
+│   │   ├── ml-100k                                     # ML 100k dataset used for initital developent and model exploration
+│   │   │   ├── ...
+│   │   ├── ml-100k-cleaned                             # Files kept for backward compatability
+│   │   │   ├── ...
+│   │   ├── ml-latest                                   # Latest and the biggest MovieLens dataset
+│   │   │   ├── ...
 │   │   ├── movie_embeddings.npy
 │   │   ├── movies_added.csv
 │   │   ├── semi_structured_locations.csv
 │   │   └── string_locations.csv
 │   ├── models
-│   └── scripts
-│       ├── utlity, batch and notebook files used during the whole timeline
+│   └── scripts                                         # Utlity, batch and notebook files used during the whole timeline
+│       ├── ...
 ```
