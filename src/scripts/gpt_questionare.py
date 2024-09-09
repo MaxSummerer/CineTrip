@@ -3,7 +3,7 @@ import json
 import regex as re
 
 # Initialize OpenAI API client
-client = openai.OpenAI(api_key='sk-proj-PxRpylslPas4pRZUSALzT3BlbkFJwJRGg5P63EFGH9Q0FHYa')
+client = openai.OpenAI(api_key='your_key')
 
 
 def create_questionnaire(location):
